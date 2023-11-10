@@ -1,0 +1,38 @@
+.load-edit-wrapper {
+  width: 100%;
+  padding: 16px 16px 0 16px;
+
+  .load-edit-container {
+    width: 100%;
+
+    .load-bio {
+      text-align: center;
+      font-size: 15px;
+      color: #050505;
+    }
+
+    .edit-bio {
+      cursor: pointer;
+      width: 100%;
+      padding-top: 16px;
+      .text {
+        user-select: none;
+        width: 100%;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #e4e6eb;
+        font-size: 15px;
+        font-weight: 500;
+        border-radius: 7px;
+        color: #050505;
+        transition: background-color 0.2s ease-in-out;
+
+        &:hover {
+          background-color: #d8dadf;
+        }
+      }
+    }
+  }
+}

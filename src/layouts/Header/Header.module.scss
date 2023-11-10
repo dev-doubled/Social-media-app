@@ -1,0 +1,226 @@
+.header-container {
+  width: 100%;
+  height: 56px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background-color: #fff;
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
+  z-index: 9;
+
+  .header-search {
+    width: 340px;
+    height: 100%;
+    padding: 0 16px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    z-index: 10;
+    .logo-icon {
+      font-size: 40px;
+      color: var(--primary);
+      margin-right: 10px;
+    }
+    .search-container {
+      width: 240px;
+      height: 40px;
+      border-radius: 25px;
+      display: flex;
+      align-items: center;
+      background-color: var(--bg-primary);
+      .search-icon {
+        padding-left: 12px;
+        color: #727478;
+      }
+      .search-input {
+        width: 100%;
+        padding: 8px;
+        font-size: 15px;
+        .input-search {
+          width: 100%;
+          border: none;
+          outline: none;
+          background-color: transparent;
+        }
+      }
+    }
+  }
+
+  .header-options {
+    width: 340px;
+    height: 100%;
+    padding-right: 16px;
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+
+    .grid-option {
+      cursor: pointer;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background-color: #e4e6eb;
+
+      .grid-icon {
+        font-size: 20px;
+        color: #050505;
+      }
+    }
+
+    .dark-mode {
+      cursor: pointer;
+      width: 40px;
+      height: 40px;
+      margin-left: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background-color: #e4e6eb;
+
+      .dark-icon {
+        font-size: 20px;
+        color: #050505;
+      }
+    }
+
+    .messenger {
+      cursor: pointer;
+      width: 40px;
+      height: 40px;
+      margin-left: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background-color: #e4e6eb;
+      .mess-icon {
+        font-size: 20px;
+        color: #050505;
+      }
+    }
+    .notification {
+      cursor: pointer;
+      width: 40px;
+      height: 40px;
+      margin-left: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background-color: #e4e6eb;
+      .bell-icon {
+        font-size: 20px;
+        color: #050505;
+      }
+    }
+    .user {
+      cursor: pointer;
+      position: relative;
+      margin-left: 10px;
+      .user-profile {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        .user-avt {
+          width: 100%;
+          height: 100%;
+          border-radius: 50%;
+        }
+      }
+      .dropdown-icon {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        z-index: 2;
+        width: 15px;
+        height: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 8px;
+        border-radius: 50%;
+        border: 2px solid #fff;
+        background-color: #e4e6eb;
+      }
+    }
+  }
+}
+
+.header-nav {
+  width: 100%;
+  height: 56px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding: 0 110px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+  .header-nav-content {
+    width: 40.5%;
+    height: 100%;
+    gap: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #fff;
+  }
+  .nav-item {
+    width: calc((100% / 5));
+    gap: 8px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: var(--text-color);
+    transition: linear 0.15s;
+    .item-icon {
+      font-size: 20px;
+      font-weight: 500;
+      color: #65676b;
+    }
+
+    &:hover {
+      border-radius: 5px;
+      background-color: #f2f2f2;
+    }
+  }
+
+  .nav-item-active {
+    width: calc((100% / 5));
+    height: 56px;
+    padding: 14.4px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: var(--text-color);
+    transition: linear 0.15s;
+    border-bottom: 3.2px solid var(--primary);
+    .item-icon {
+      font-size: 22px;
+      color: var(--primary);
+    }
+
+    &:hover {
+      background-color: transparent;
+    }
+  }
+
+  @media screen and (max-width: 1600px) {
+    .header-nav-content {
+      width: 46%;
+    }
+  }
+}

@@ -1,0 +1,256 @@
+.right-side-bar-wrapper {
+  width: 340px;
+  height: 100%;
+  position: fixed;
+  right: 2px;
+  top: 56px;
+  overflow-y: hidden;
+  max-height: calc(100% - 56px);
+  background-color: var(--bg-primary);
+  transition: overflow-y 0.3s;
+  .right-side-bar-container {
+    width: 332px;
+    margin-top: 20px;
+    .right-side-bar-top {
+      .main-text {
+        padding: 0 8px 0 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        .title {
+          font-size: 17px;
+          font-weight: 500;
+          color: var(--text-primary);
+        }
+        .dot-icon {
+          cursor: pointer;
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background-color: transparent;
+
+          .icon {
+            font-size: 15px;
+          }
+
+          &:hover {
+            background-color: #e4e6e9;
+          }
+        }
+      }
+      .page-information {
+        padding: 8px 0;
+        .page-details {
+          cursor: pointer;
+          padding: 0 8px;
+          padding-right: 0;
+          line-height: 28px;
+          gap: 10px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 8px;
+          .page-img {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+          }
+          .page-name {
+            width: 260px;
+            padding: 12px 0;
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text-color);
+          }
+
+          &:hover {
+            background-color: #e4e6e9;
+          }
+        }
+
+        .page-options {
+          .switch-page {
+            cursor: pointer;
+            line-height: 22px;
+            padding: 0 12px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            .icon {
+              padding: 6px;
+              font-size: 15px;
+              color: #65676b;
+            }
+            .text {
+              width: 240px;
+              padding: 6px;
+              font-size: 13px;
+              font-weight: 500;
+              color: #65676b;
+            }
+            &:hover {
+              background-color: #e4e6e9;
+            }
+          }
+          .create-promotion {
+            cursor: pointer;
+            line-height: 22px;
+            padding: 0 12px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            .icon {
+              padding: 6px;
+              font-size: 15px;
+              color: #65676b;
+            }
+            .text {
+              width: 240px;
+              padding: 6px;
+              font-size: 13px;
+              font-weight: 500;
+              color: #65676b;
+            }
+            &:hover {
+              background-color: #e4e6e9;
+            }
+          }
+        }
+      }
+      .line {
+        padding: 0 8px;
+        hr {
+          margin: 0;
+          color: #7e7e7e;
+        }
+      }
+    }
+
+    .right-bar-contact {
+      .contact-header {
+        padding: 16px 16px 0 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        .text {
+          width: 200px;
+          font-size: 17px;
+          font-weight: 600;
+          color: #65676b;
+        }
+
+        .search-icon {
+          cursor: pointer;
+          width: 36px;
+          height: 36px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 50%;
+          transition: linear 0.2s;
+          .icon {
+            font-size: 17px;
+            color: #050505;
+          }
+          &:hover {
+            background-color: #e4e6e9;
+          }
+        }
+
+        .setting-icon {
+          cursor: pointer;
+          width: 36px;
+          height: 36px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 50%;
+          transition: linear 0.2s;
+          .icon {
+            font-size: 17px;
+            color: #050505;
+          }
+          &:hover {
+            background-color: #e4e6e9;
+          }
+        }
+      }
+
+      .contact-container {
+        padding: 8px 0;
+        .user-contact {
+          padding-left: 8px;
+          .user-contact-info {
+            cursor: pointer;
+            line-height: 28px;
+            gap: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: linear 0.2s;
+
+            .user-avt {
+              position: relative;
+              margin-left: 10px;
+              margin-right: 3px;
+              width: 36px;
+              height: 36px;
+              border-radius: 50%;
+              object-fit: cover;
+
+              .uer-img {
+                width: 100%;
+                height: 100%;
+                border-radius: 50%;
+              }
+
+              .activity {
+                position: absolute;
+                bottom: 0;
+                right: 0;
+                width: 12px;
+                height: 12px;
+                border-radius: 50%;
+                border: 2px solid #fff;
+                background-color: #31a24c;
+              }
+            }
+            .username {
+              width: 270px;
+              padding: 12px 0;
+              margin-left: 2px;
+              font-size: 15px;
+              font-weight: 500;
+            }
+            &:hover {
+              background-color: #e4e6e9;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  &:hover {
+    overflow-y: auto;
+  }
+}
+
+.right-side-bar-wrapper::-webkit-scrollbar {
+  width: 8px;
+}
+
+.right-side-bar-wrapper::-webkit-scrollbar-thumb {
+  background-color: rgba(22, 24, 35, 0.06);
+  border-radius: 4px;
+}
+
+.right-side-bar-wrapper::-webkit-scrollbar-track {
+  background-color: rgba(0, 0, 0, 0);
+  border-radius: 4px;
+}

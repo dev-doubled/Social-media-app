@@ -1,0 +1,133 @@
+.reply-comment {
+  display: flex;
+  gap: 10px;
+  padding: 4px 0 6px 65px;
+
+  .user-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .avt {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+    }
+  }
+
+  .comment-content-wrapper {
+    width: calc(100% - 40px);
+    .main-comment {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+    .comment-content-container {
+      width: fit-content;
+      height: fit-content;
+      max-width: 93%;
+      padding: 8px 12px;
+      border-radius: 15px;
+      background-color: #f0f2f5;
+
+      .username {
+        font-size: 13px;
+        font-weight: 500;
+        line-height: 10px;
+        color: #050505;
+      }
+
+      .comment-content {
+        padding-top: 6px;
+        font-size: 15px;
+        color: #050505;
+        display: block;
+        white-space: pre-wrap;
+        line-height: 20px;
+
+        .see-more-btn {
+          font-size: 15px;
+          font-weight: 500;
+          margin-left: 3px;
+          color: #050505;
+          border: none;
+          outline: none;
+          background-color: transparent;
+
+          &:hover {
+            text-decoration: underline;
+          }
+        }
+      }
+    }
+
+    .setting-comment {
+      cursor: pointer;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: none;
+      align-items: center;
+      justify-content: center;
+
+      .icon {
+        color: #5b626a;
+      }
+
+      &:hover {
+        background-color: #f2f2f2;
+      }
+    }
+    .comment-options {
+      padding-top: 4px;
+      padding-left: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      .comment-time {
+        cursor: pointer;
+        font-size: 12px;
+        color: #65676b;
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+
+      .comment-reaction {
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 600;
+        color: #65676b;
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+
+      .comment-reply {
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 600;
+        color: #65676b;
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+
+    &:hover .setting-comment {
+      display: flex;
+    }
+  }
+}
+
+@media screen and (max-width: 1600px) {
+  .reply-comment {
+    padding-left: 60px;
+  }
+}

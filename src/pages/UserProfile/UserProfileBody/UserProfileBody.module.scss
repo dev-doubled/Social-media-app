@@ -1,0 +1,39 @@
+.user-profile-body-wrapper {
+  width: 100%;
+  height: fit-content;
+  display: flex;
+  justify-content: center;
+  background-color: #f0f2f5;
+
+  .user-profile-body-container {
+    width: 62.356%;
+    height: fit-content;
+    display: flex;
+    justify-content: center;
+    gap: 15.98px;
+
+    .user-profile-left {
+      width: 41.316%;
+      margin-top: 20px;
+    }
+
+    .user-profile-right {
+      width: calc(100% - 41.316% - 15.98px);
+      margin-top: 20px;
+    }
+  }
+
+  @media screen and (max-width: 1600px) {
+    .user-profile-body-container {
+      width: 67.901%;
+
+      .user-profile-left {
+        width: 41.212%;
+      }
+
+      .user-profile-right {
+        width: calc(100% - 41.212% - 15.98px);
+      }
+    }
+  }
+}

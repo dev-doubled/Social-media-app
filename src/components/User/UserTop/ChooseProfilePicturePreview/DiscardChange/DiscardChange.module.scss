@@ -1,0 +1,115 @@
+.discard-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 101;
+  width: 100%;
+  height: fit-content;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.65);
+
+  .discard-container {
+    width: 550px;
+    height: fit-content;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+    border-radius: 8px;
+    background-color: #fff;
+
+    .discard-header {
+      width: 100%;
+      height: 60px;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 0.8px solid #e5e5e5;
+      .empty {
+        width: 36px;
+        height: 36px;
+      }
+      .title {
+        padding: 0 16px;
+        font-size: 21px;
+        font-weight: bold;
+        color: #050505;
+      }
+      .close {
+        cursor: pointer;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #e4e6eb;
+        transition: background-color 0.2s ease-in-out;
+        .icon {
+          font-size: 20px;
+          color: #050505;
+        }
+
+        &:hover {
+          background-color: #d8dadf;
+        }
+      }
+    }
+
+    .discard-notification {
+      width: 100%;
+      height: 50px;
+      padding: 12px 16px;
+      font-size: 15px;
+      color: #050505;
+    }
+
+    .discard-submit {
+      padding: 16px;
+      .submit-button {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+
+        .cancel-btn {
+          height: 36px;
+          padding: 0 12px;
+          font-size: 15px;
+          font-weight: 500;
+          color: #0064d1;
+          border: none;
+          outline: none;
+          border-radius: 5px;
+          background-color: transparent;
+          transition: background-color 0.2s ease-in-out;
+
+          &:hover {
+            background-color: #f2f2f2;
+          }
+        }
+
+        .discard-btn {
+          height: 36px;
+          padding: 0 40px;
+          font-size: 15px;
+          font-weight: 500;
+          color: #fff;
+          border: none;
+          outline: none;
+          border-radius: 5px;
+          background-color: var(--primary);
+          transition: background-image 0.2s ease-in-out;
+
+          &:hover {
+            background-color: #0861f2;
+          }
+        }
+      }
+    }
+  }
+}

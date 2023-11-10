@@ -1,0 +1,290 @@
+.user-story-wrapper {
+  width: 100%;
+  height: 292px;
+  margin-top: 25px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+  background-color: #fff;
+  .user-story-container {
+    .topic {
+      width: 100%;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      border-radius: 8px 8px 0 0;
+      border-bottom: 1px solid #e5e5e5;
+
+      .stories {
+        user-select: none;
+        cursor: pointer;
+        height: 52px;
+        flex: 1;
+        gap: 7px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: ease-in 0.15;
+
+        .story-icon {
+          font-size: 19px;
+        }
+
+        .story-text {
+          font-size: 15px;
+          font-weight: 500;
+        }
+        &:hover {
+          border-radius: 5px;
+          background-color: #f2f2f2;
+        }
+      }
+
+      .stories-active {
+        user-select: none;
+        cursor: pointer;
+        width: 60px;
+        flex: 1;
+        gap: 7px;
+        padding: 17.25px 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: ease-in 0.15;
+        border-bottom: 3px solid var(--primary);
+
+        .story-icon {
+          font-size: 19px;
+          color: var(--primary);
+        }
+
+        .story-text {
+          font-size: 15px;
+          font-weight: 500;
+          color: var(--primary);
+        }
+      }
+
+      .reels {
+        user-select: none;
+        cursor: pointer;
+        height: 52px;
+        flex: 1;
+        gap: 7px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: ease-in 0.15;
+
+        .reel-icon {
+          font-size: 19px;
+        }
+
+        .reel-text {
+          font-size: 15px;
+          font-weight: 500;
+        }
+
+        &:hover {
+          border-radius: 5px;
+          background-color: #f2f2f2;
+        }
+      }
+
+      .reels-active {
+        user-select: none;
+        cursor: pointer;
+        width: 60px;
+        flex: 1;
+        gap: 7px;
+        padding: 17.25px 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: ease-in 0.15;
+        border-bottom: 3px solid var(--primary);
+
+        .reel-icon {
+          font-size: 19px;
+          color: var(--primary);
+        }
+
+        .reel-text {
+          font-size: 15px;
+          font-weight: 500;
+          color: var(--primary);
+        }
+      }
+    }
+    .stories-container {
+      width: 100%;
+      height: 232px;
+      padding: 16px 0 16px 16px;
+      border-radius: 0 0 8px 8px;
+      .stories-content-list {
+        position: relative;
+
+        .custom-prev-arrow {
+          cursor: pointer;
+          width: 48px;
+          height: 48px;
+          border-radius: 50%;
+          position: absolute;
+          left: 5px;
+          top: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transform: translateY(-50%);
+          z-index: 3;
+          background-color: #fff;
+
+          .icon-prev {
+            font-size: 20px;
+            font-weight: 500;
+          }
+        }
+        .custom-next-arrow {
+          cursor: pointer;
+          width: 48px;
+          height: 48px;
+          border-radius: 50%;
+          position: absolute;
+          right: 5px;
+          top: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transform: translateY(-50%);
+          z-index: 3;
+          background-color: #fff;
+
+          .icon-next {
+            font-size: 20px;
+            font-weight: 500;
+          }
+        }
+      }
+      .create-story {
+        cursor: pointer;
+        position: relative;
+        width: 113px;
+        height: 200px;
+        border-radius: 8px;
+        border: 0.5px solid #e5e5e5;
+        background-color: #fff;
+
+        .user-image {
+          width: 100%;
+          height: 151px;
+          border-radius: 8px 8px 0 0;
+          overflow: hidden;
+
+          .user-avt {
+            width: 100%;
+            height: 100%;
+            transform: scale(1.4);
+          }
+        }
+
+        .create-icon {
+          position: absolute;
+          top: 132.5px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 38px;
+          height: 38px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background-color: var(--primary);
+          border-radius: 50%;
+          border: 3px solid #fff;
+
+          .icon {
+            font-size: 18px;
+            color: #fff;
+          }
+        }
+
+        .create-text {
+          font-size: 13px;
+          font-weight: 600;
+          padding-top: 22px;
+          text-align: center;
+        }
+
+        &:hover {
+          background-color: #e5e5e5;
+
+          .user-avt {
+            transform: scale(1.6);
+            transition: transform 0.3s ease;
+          }
+        }
+      }
+
+      .upload-story {
+        cursor: pointer;
+        position: relative;
+        width: 113px;
+        height: 200px;
+        border-radius: 8px;
+        transition: 0.15s ease;
+
+        .user-avt {
+          position: absolute;
+          top: 8px;
+          left: 8px;
+          width: 36px;
+          height: 36px;
+          border: 3px solid var(--primary);
+          border-radius: 50%;
+          .user-img {
+            user-select: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+          }
+          .active-dot {
+            position: absolute;
+            bottom: -6px;
+            right: -5px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 2px solid #fff;
+            background-color: #31a24c;
+          }
+        }
+
+        .user-name {
+          width: 95px;
+          position: absolute;
+          bottom: 7px;
+          left: 10px;
+          font-size: 13px;
+          font-weight: 500;
+          word-wrap: break-word;
+          white-space: normal;
+          overflow: hidden;
+          display: -webkit-box;
+          text-overflow: ellipsis;
+          -webkit-box-orient: vertical;
+          -webkit-line-clamp: 2;
+          color: #fff;
+        }
+
+        &:hover {
+          opacity: 0.9;
+        }
+      }
+
+      .reels-content {
+        width: 100%;
+        height: 100%;
+      }
+    }
+  }
+}
