@@ -1,21 +1,54 @@
 import React, { useEffect, useRef, useState } from "react";
 import classNames from "classnames/bind";
+import ClipLoader from "react-spinners/ClipLoader";
+import api from "~/services/apiService";
+import LoadingSpinner from "~/components/LoadingSpinner";
 import EmojiPicker, { EmojiStyle } from "emoji-picker-react";
+import {
+  ref,
+  uploadBytes,
+  getDownloadURL,
+  deleteObject,
+} from "firebase/storage";
+import { v4 } from "uuid";
+import { storage } from "~/config/firebase";
 import styles from "./CreateStatus.module.scss";
 import UserImg from "~/assets/images/user.jpg";
 const cx = classNames.bind(styles);
-function CreateStatus({ setOpenCreateStatus }) {
+function CreateStatus({ setOpenCreateStatus, setStatusText }) {
+  const [postData, setPostData] = useState({
+    author: {
+      userName: "Duy Lee",
+      userAvatar:
+        "https://scontent.fsgn2-5.fna.fbcdn.net/v/t39.30808-6/305130711_3224501994471146_3077752946256013623_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=5f2048&_nc_ohc=pK8Nk0P-qSIAX-wdtx_&_nc_ht=scontent.fsgn2-5.fna&oh=00_AfBYIRRhtOhQrV2C2T0VmSZtePJ4qsoCTzkNBMuOLg5s_w&oe=6559E906",
+    },
+    caption: "",
+    image: "",
+  });
   const [postContent, setPostContent] = useState("");
   const [textareaRows, setTextareaRows] = useState(1);
   const [showEmoji, setShowEmoji] = useState(false);
-  const [postImagePreview, setPostImagePreview] = useState([]);
-  // const [postImage, setPostImage] = useState([]);
+  const [postImagePreview, setPostImagePreview] = useState(null);
+  const [loadingImg, setLoadingImg] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [activePostBtn, setActivePostBtn] = useState(false);
   const textareaRef = useRef(null);
   const fileInputImageRef = useRef();
 
-  const handleContentChange = (e) => {
-    setPostContent(e.target.value);
-  };
+  useEffect(() => {
+    const content = JSON.parse(localStorage.getItem("postContent"));
+    const imagePreview = JSON.parse(localStorage.getItem("postImage"));
+    const imageSave = JSON.parse(localStorage.getItem("postImageSave"));
+    if (content || imageSave) {
+      setPostData({ ...postData, caption: content, image: imageSave });
+      setPostContent(content);
+      setActivePostBtn(true);
+    }
+    if (imagePreview) {
+      setPostImagePreview(imagePreview);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     // Automatically resize the textarea when the content is changed
@@ -32,30 +65,61 @@ function CreateStatus({ setOpenCreateStatus }) {
     setTextareaRows(calculatedRows);
   }, [postContent]);
 
+  const handleContentChange = (e) => {
+    const newContent = e.target.value;
+    if (newContent) {
+      setPostData({ ...postData, caption: newContent });
+      setPostContent(newContent);
+      setStatusText(newContent);
+      setActivePostBtn(true);
+      localStorage.setItem("postContent", JSON.stringify(newContent));
+    } else {
+      setPostData({ ...postData, caption: "" });
+      setPostContent("");
+      setStatusText("");
+      setActivePostBtn(false);
+      localStorage.removeItem("postContent");
+    }
+  };
+
   const handleClickImage = () => {
     fileInputImageRef.current.click();
   };
 
-  const handlePreviewImage = (e) => {
-    const length = e.target.files.length;
-    const files = [];
-    const previews = [];
+  const handleChangeImage = async (e) => {
+    setActivePostBtn(false);
+    setLoadingImg(true);
+    let file = null;
 
-    for (let i = 0; i < length; i++) {
-      const file = e.target.files[i];
-      files.push(file);
-      let url = URL.createObjectURL(file);
-      previews.push(url);
+    //Preview Image
+
+    if (e.target.files.length === 1) {
+      file = e.target.files[0];
+      const url = URL.createObjectURL(file);
+
+      if (postImagePreview) {
+        URL.revokeObjectURL(postImagePreview);
+      }
+      localStorage.setItem("postImage", JSON.stringify(url));
+
+      setPostImagePreview(url);
     }
 
-    setPostImagePreview((prev) => [...prev, ...previews]);
-  };
+    //Upload Image to Firebase
 
-  useEffect(() => {
-    return () => {
-      postImagePreview && URL.revokeObjectURL(postImagePreview.preview);
-    };
-  }, [postImagePreview]);
+    const imageRef = ref(storage, `postImages/${file.name + v4()}`);
+    try {
+      await uploadBytes(imageRef, file);
+      const downloadURL = await getDownloadURL(imageRef);
+      setPostData({ ...postData, image: downloadURL });
+      localStorage.setItem("postImageSave", JSON.stringify(downloadURL));
+      setActivePostBtn(true);
+      setLoadingImg(false);
+      console.log("File uploaded successfully");
+    } catch (error) {
+      console.error("Error uploading file:", error.message);
+    }
+  };
 
   const handleClickEmoji = (e) => {
     e.stopPropagation();
@@ -67,241 +131,297 @@ function CreateStatus({ setOpenCreateStatus }) {
     textareaRef.current.focus();
   };
 
-  const handlePostStatus = () => {
-    console.log(postContent);
-    console.log(postImagePreview.length);
+  const handleDeleteImagePreview = async () => {
+    setLoadingImg(true);
+    //Delete image from firebase
+    try {
+      // Extracting the image path from the URL
+      const parsedUrl = new URL(postData.image);
+      const pathWithoutLeadingSlash = parsedUrl.pathname.substring(1);
+      const imagePath = pathWithoutLeadingSlash.split("o/")[1];
+      const decodedImagePath = decodeURIComponent(imagePath);
+      // Creating a reference to the image in Firebase Storage
+      const imageToDeleteRef = ref(storage, decodedImagePath);
+      // Deleting the image
+      await deleteObject(imageToDeleteRef);
+
+      // Update state or perform any additional actions after deletion
+      setPostData({ ...postData, image: "" });
+      setPostImagePreview(null);
+      localStorage.removeItem("postImage");
+      localStorage.removeItem("postImageSave");
+      setActivePostBtn(false);
+      setLoadingImg(false);
+      console.log("File deleted successfully");
+    } catch (error) {
+      console.error("Error deleting file:", error.message);
+    }
   };
 
-  const handleDeleteImage = (index) => {
-    const updatedPreview = [...postImagePreview];
-    updatedPreview.splice(index, 1);
-    setPostImagePreview(updatedPreview);
+  const handlePostStatus = () => {
+    //Call API to create new post
+    setLoading(true);
+    console.log(postData);
+    api
+      .post("/post/create", postData)
+      .then((res) => {
+        setStatusText("");
+        localStorage.removeItem("postContent");
+        localStorage.removeItem("postImage");
+        localStorage.removeItem("postImageSave");
+        setLoading(false);
+        window.location.href = "/";
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   return (
-    <div className={cx("overlay")}>
-      <div
-        className={cx("create-post-container")}
-        onClick={() => setShowEmoji(false)}
-      >
-        {showEmoji && (
-          <div className={cx("emojiPickerContainer")}>
-            <EmojiPicker
-              width={280}
-              height={290}
-              emojiStyle={EmojiStyle.FACEBOOK}
-              searchDisabled={true}
-              onEmojiClick={onEmojiClick}
-            />
-          </div>
-        )}
-        <div className={cx("create-header")}>
-          <div className={cx("empty")}></div>
-          <div className={cx("title")}>Create Post</div>
-          <div
-            className={cx("close-icon")}
-            onClick={() => setOpenCreateStatus(false)}
-          >
-            <i className={cx("fa-light fa-xmark", "icon")}></i>
-          </div>
-        </div>
-        <div className={cx("user-info")}>
-          <img src={UserImg} alt="user-avt" className={cx("user-avt")} />
-          <div className={cx("info")}>
-            <div className={cx("username")}>Dinh Duy</div>
-            <div className={cx("post-audience")}>
-              <i
-                className={cx(
-                  "fa-sharp fa-solid fa-earth-americas",
-                  "world-icon"
-                )}
-              ></i>
-              <span className={cx("text")}>Public</span>
-              <i
-                className={cx("fa-sharp fa-solid fa-caret-down", "down-icon")}
-              ></i>
+    <>
+      {loading && <LoadingSpinner loading={loading} />}
+      <div className={cx("create-post-wrapper")}>
+        <div
+          className={cx("create-post-container")}
+          onClick={() => setShowEmoji(false)}
+        >
+          {showEmoji && (
+            <div className={cx("emojiPickerContainer")}>
+              <EmojiPicker
+                width={280}
+                height={290}
+                emojiStyle={EmojiStyle.FACEBOOK}
+                searchDisabled={true}
+                onEmojiClick={onEmojiClick}
+              />
+            </div>
+          )}
+          <div className={cx("create-header")}>
+            <div className={cx("empty")}></div>
+            <div className={cx("title")}>Create Post</div>
+            <div
+              className={cx("close-icon")}
+              onClick={() => setOpenCreateStatus(false)}
+            >
+              <i className={cx("fa-light fa-xmark", "icon")}></i>
             </div>
           </div>
-        </div>
-        <div className={cx("input-information")}>
-          <div className={cx("input-status")}>
-            <div className={cx("input")}>
-              <textarea
-                placeholder="What's on your mind?"
-                className={cx("content-input")}
-                value={postContent}
-                onChange={handleContentChange}
-                rows={textareaRows}
-                ref={textareaRef}
-              ></textarea>
-            </div>
-            <div className={cx("icon-reaction")}>
-              <i
-                className={cx("fa-light fa-face-smile", "smile-icon")}
-                onClick={(e) => handleClickEmoji(e)}
-              ></i>
+          <div className={cx("user-info")}>
+            <img src={UserImg} alt="user-avt" className={cx("user-avt")} />
+            <div className={cx("info")}>
+              <div className={cx("username")}>Dinh Duy</div>
+              <div className={cx("post-audience")}>
+                <i
+                  className={cx(
+                    "fa-sharp fa-solid fa-earth-americas",
+                    "world-icon"
+                  )}
+                ></i>
+                <span className={cx("text")}>Public</span>
+                <i
+                  className={cx("fa-sharp fa-solid fa-caret-down", "down-icon")}
+                ></i>
+              </div>
             </div>
           </div>
-          <div className={cx("input-img-container")}>
-            <div className={cx("input-img")}>
-              {postImagePreview.length < 1 && (
-                <div
-                  className={cx("upload-mainFile")}
-                  onClick={handleClickImage}
-                >
-                  <div className={cx("upload-content")}>
-                    <div className={cx("upload-img")}>
-                      <div className={cx("upload-icon")}>
-                        <i
-                          className={cx("fa-solid fa-file-plus", "plus-icon")}
-                        ></i>
-                      </div>
-                    </div>
-                    <div className={cx("upload-title")}>Add Photos/Videos</div>
-                    <div className={cx("upload-subTitle")}>
-                      or drag and drop
-                    </div>
-                  </div>
-                  <input
-                    ref={fileInputImageRef}
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    className={cx("image-input")}
-                    style={{ display: "none" }}
-                    onChange={handlePreviewImage}
-                  />
-                </div>
-              )}
-
-              <div className={cx("upload-image-preview")}>
-                {postImagePreview.length > 0 &&
-                  postImagePreview.map((item, index) => (
-                    <div className={cx("image-preview-container")} key={index}>
-                      <img
-                        src={item}
-                        alt="img-review"
-                        className={cx("image-preview")}
-                      />
-                      <div
-                        className={cx("delete-img")}
-                        onClick={() => handleDeleteImage(index)}
-                      >
-                        <i
-                          className={cx("fa-light fa-xmark", "delete-icon")}
-                        ></i>
-                      </div>
-                      <div className={cx("overlay-img")}></div>
-                    </div>
-                  ))}
-                {postImagePreview.length > 0 && (
+          <div className={cx("input-information")}>
+            <div className={cx("input-status")}>
+              <div className={cx("input")}>
+                <textarea
+                  placeholder="What's on your mind?"
+                  className={cx("content-input")}
+                  value={postData.caption}
+                  onChange={handleContentChange}
+                  rows={textareaRows}
+                  ref={textareaRef}
+                  spellCheck={false}
+                ></textarea>
+              </div>
+              <div className={cx("icon-reaction")}>
+                <i
+                  className={cx("fa-light fa-face-smile", "smile-icon")}
+                  onClick={(e) => handleClickEmoji(e)}
+                ></i>
+              </div>
+            </div>
+            <div className={cx("input-img-container")}>
+              <div className={cx("input-img")}>
+                {postImagePreview === null && (
                   <div
-                    className={cx("add-more-photo")}
+                    className={cx("upload-mainFile")}
                     onClick={handleClickImage}
                   >
-                    <div className={cx("add-more-icon")}>
-                      <i
-                        className={cx("fa-solid fa-file-plus", "plus-icon")}
-                      ></i>
-                    </div>
-                    <div className={cx("add-more-title")}>
-                      Add Photos/Videos
+                    <div className={cx("upload-content")}>
+                      <div className={cx("upload-img")}>
+                        <div className={cx("upload-icon")}>
+                          <i
+                            className={cx("fa-solid fa-file-plus", "plus-icon")}
+                          ></i>
+                        </div>
+                      </div>
+                      <div className={cx("upload-title")}>
+                        Add Photos/Videos
+                      </div>
+                      <div className={cx("upload-subTitle")}>
+                        or drag and drop
+                      </div>
                     </div>
                     <input
                       ref={fileInputImageRef}
                       type="file"
                       accept="image/*"
+                      name="img"
                       multiple
                       className={cx("image-input")}
                       style={{ display: "none" }}
-                      onChange={handlePreviewImage}
+                      onChange={handleChangeImage}
                     />
                   </div>
                 )}
-              </div>
 
-              <div className={cx("upload-subFile")}>
-                <div className={cx("upload-subFile-content")}>
-                  <div className={cx("left")}>
-                    <div className={cx("phone-icon")}>
-                      <i
-                        className={cx("fa-regular fa-mobile-notch", "icon")}
-                      ></i>
+                <div className={cx("upload-image-preview")}>
+                  {postImagePreview && (
+                    <div className={cx("image-preview-container")}>
+                      <div className={cx("image-upload")}>
+                        <img
+                          src={postImagePreview}
+                          alt="img-review"
+                          className={cx("image-preview")}
+                        />
+                        {loadingImg && (
+                          <>
+                            <ClipLoader
+                              size={40}
+                              color="#0866ff"
+                              className={cx("loading-spinner")}
+                            />
+                            <div className={cx("overlay-loading")}></div>
+                          </>
+                        )}
+                      </div>
+                      {!loadingImg && (
+                        <>
+                          <div
+                            className={cx("delete-img")}
+                            onClick={() => handleDeleteImagePreview()}
+                          >
+                            <i
+                              className={cx("fa-light fa-xmark", "delete-icon")}
+                            ></i>
+                          </div>
+                          <div className={cx("overlay-img")}></div>
+                        </>
+                      )}
                     </div>
+                  )}
+                  {postImagePreview && !loadingImg && (
+                    <div
+                      className={cx("add-more-photo")}
+                      onClick={handleClickImage}
+                    >
+                      <div className={cx("add-more-icon")}>
+                        <i
+                          className={cx("fa-solid fa-file-plus", "plus-icon")}
+                        ></i>
+                      </div>
+                      <div className={cx("add-more-title")}>
+                        Add Photos/Videos
+                      </div>
+                      <input
+                        ref={fileInputImageRef}
+                        type="file"
+                        accept="image/*"
+                        name="img"
+                        multiple
+                        className={cx("image-input")}
+                        style={{ display: "none" }}
+                        onChange={handleChangeImage}
+                      />
+                    </div>
+                  )}
+                </div>
+
+                <div className={cx("upload-subFile")}>
+                  <div className={cx("upload-subFile-content")}>
+                    <div className={cx("left")}>
+                      <div className={cx("phone-icon")}>
+                        <i
+                          className={cx("fa-regular fa-mobile-notch", "icon")}
+                        ></i>
+                      </div>
+                    </div>
+                    <div className={cx("text-content")}>
+                      Add photos and videos from your mobile device.
+                    </div>
+                    <div className={cx("add-btn")}>Add</div>
                   </div>
-                  <div className={cx("text-content")}>
-                    Add photos and videos from your mobile device.
-                  </div>
-                  <div className={cx("add-btn")}>Add</div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-        <div className={cx("post-action")}>
-          <div className={cx("add-options-post")}>
-            <div className={cx("add-text")}>Add to your post</div>
-            <div className={cx("list-actions")}>
-              <div
-                className={cx("image")}
-                style={{ backgroundColor: "#e4f0d5" }}
-              >
-                <i
-                  className={cx("fa-regular fa-image", "icon")}
-                  style={{ color: "#45bd62" }}
-                ></i>
-              </div>
-              <div className={cx("user-tag")}>
-                <i
-                  className={cx("fa-solid fa-user-tag", "icon")}
-                  style={{ color: "#1877f2" }}
-                ></i>
-              </div>
-              <div className={cx("smile")}>
-                <i
-                  className={cx("fa-regular fa-face-grin", "icon")}
-                  style={{ color: "#f7b928" }}
-                ></i>
-              </div>
-              <div className={cx("location")}>
-                <i
-                  className={cx("fa-sharp fa-solid fa-location-dot", "icon")}
-                  style={{ color: "#f5533d" }}
-                ></i>
-              </div>
-              <div className={cx("gif")}>
-                <i
-                  className={cx("fa-solid fa-gif", "icon")}
-                  style={{ color: "#d9d9d9" }}
-                ></i>
-              </div>
-              <div className={cx("dots")}>
-                <i
-                  className={cx("fa-regular fa-ellipsis", "icon")}
-                  style={{ color: "#606770" }}
-                ></i>
+          <div className={cx("post-action")}>
+            <div className={cx("add-options-post")}>
+              <div className={cx("add-text")}>Add to your post</div>
+              <div className={cx("list-actions")}>
+                <div
+                  className={cx("image")}
+                  style={{ backgroundColor: "#e4f0d5" }}
+                >
+                  <i
+                    className={cx("fa-regular fa-image", "icon")}
+                    style={{ color: "#45bd62" }}
+                  ></i>
+                </div>
+                <div className={cx("user-tag")}>
+                  <i
+                    className={cx("fa-solid fa-user-tag", "icon")}
+                    style={{ color: "#1877f2" }}
+                  ></i>
+                </div>
+                <div className={cx("smile")}>
+                  <i
+                    className={cx("fa-regular fa-face-grin", "icon")}
+                    style={{ color: "#f7b928" }}
+                  ></i>
+                </div>
+                <div className={cx("location")}>
+                  <i
+                    className={cx("fa-sharp fa-solid fa-location-dot", "icon")}
+                    style={{ color: "#f5533d" }}
+                  ></i>
+                </div>
+                <div className={cx("gif")}>
+                  <i
+                    className={cx("fa-solid fa-gif", "icon")}
+                    style={{ color: "#d9d9d9" }}
+                  ></i>
+                </div>
+                <div className={cx("dots")}>
+                  <i
+                    className={cx("fa-regular fa-ellipsis", "icon")}
+                    style={{ color: "#606770" }}
+                  ></i>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div
-            className={cx(
-              postContent || postImagePreview.length > 0
-                ? "post-btn-action-active"
-                : "post-btn-action"
-            )}
-          >
-            <button
-              className={cx("post-btn")}
-              disabled={postContent === "" && postImagePreview.length === 0}
-              onClick={handlePostStatus}
+            <div
+              className={cx(
+                activePostBtn ? "post-btn-action-active" : "post-btn-action"
+              )}
             >
-              Post
-            </button>
+              <button
+                className={cx("post-btn")}
+                disabled={!activePostBtn}
+                onClick={handlePostStatus}
+              >
+                Post
+              </button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 

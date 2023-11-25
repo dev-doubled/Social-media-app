@@ -11,27 +11,27 @@ import styles from "./UserProfileTop.module.scss";
 const cx = classNames.bind(styles);
 const selections = [
   {
-    path: "/user",
+    path: "/profile",
     text: "Posts",
   },
   {
-    path: "/user/about",
+    path: "/profile/about",
     text: "About",
   },
   {
-    path: "/user/friends",
+    path: "/profile/friends",
     text: "Friends",
   },
   {
-    path: "/user/photos",
+    path: "/profile/photos",
     text: "Photos",
   },
   {
-    path: "/user/videos",
+    path: "/profile/videos",
     text: "Videos",
   },
   {
-    path: "/user/map",
+    path: "/profile/map",
     text: "Check-ins",
   },
 ];

@@ -132,7 +132,7 @@ function LeftSideBar() {
       <div className={cx("left-side-bar-wrapper")}>
         <div className={cx("left-side-bar-container")}>
           <div className={scrolling ? cx("user-scroll") : cx("user")}>
-            <Link to="/user" className={cx("user-info")}>
+            <Link to="/profile" className={cx("user-info")}>
               <img
                 src={UserImg}
                 alt="user-avt"

@@ -14,7 +14,7 @@ function Friend({ friend }) {
     } else {
       window.scrollTo(0, 300);
     }
-    navigate("/user");
+    navigate("/profile");
   };
   return (
     <Link className={cx("friend")} onClick={handleClick}>

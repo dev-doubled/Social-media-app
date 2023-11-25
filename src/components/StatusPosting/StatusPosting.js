@@ -23,7 +23,7 @@ Tuy vậy, có thể thấy rõ rằng dòng tiền đã bắt đầu có sự d
 #HoangMinhThien #Crypto #BTC #Bitcoin`;
 
 const images = [
-  "https://scontent.fsgn2-5.fna.fbcdn.net/v/t39.30808-6/398233135_1099222067741532_1150734091115644840_n.jpg?stp=cp6_dst-jpg&_nc_cat=104&ccb=1-7&_nc_sid=5f2048&_nc_ohc=ZJN4nlLUp0AAX_p54FB&_nc_ht=scontent.fsgn2-5.fna&oh=00_AfCNBAnmbm_1PDGjhTfwMnT5HeR_PZJDT201_lwzGuIxmA&oe=65493652",
+  "https://firebasestorage.googleapis.com/v0/b/social-media-app-44a6c.appspot.com/o/postImages%2Fcute.jpg68296ece-5e54-4c2e-9ad9-91fc9fd95d4d?alt=media&token=39704d54-24bf-4b20-bba5-5148db95afb5",
 ];
 
 function Status() {

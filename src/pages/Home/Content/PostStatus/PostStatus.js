@@ -1,9 +1,8 @@
-import React from "react";
 import classNames from "classnames/bind";
-import styles from "./PostStatus.module.scss";
 import UserImg from "~/assets/images/user.jpg";
+import styles from "./PostStatus.module.scss";
 const cx = classNames.bind(styles);
-function PostStatus({ setOpenCreateStatus }) {
+function PostStatus({ setOpenCreateStatus, statusText }) {
   return (
     <div className={cx("post-status-wrapper")}>
       <div className={cx("post-status-container")}>
@@ -15,7 +14,9 @@ function PostStatus({ setOpenCreateStatus }) {
             className={cx("upload-status")}
             onClick={() => setOpenCreateStatus(true)}
           >
-            <div className={cx("status-text")}>What's on your mind, Dinh?</div>
+            <div className={cx("status-text")}>
+              {statusText === "" ? "What's on your mind, Dinh?" : statusText}
+            </div>
           </div>
         </div>
         <div className={cx("status-options")}>

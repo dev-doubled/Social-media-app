@@ -18,9 +18,9 @@
     display: flex;
     align-items: center;
     z-index: 10;
-    .logo-icon {
-      font-size: 40px;
-      color: var(--primary);
+    .logo {
+      width: 42px;
+      height: 42px;
       margin-right: 10px;
     }
     .search-container {

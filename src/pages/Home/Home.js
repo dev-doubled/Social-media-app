@@ -11,19 +11,20 @@ const cx = classNames.bind(styles);
 
 function Home() {
   const [openCreateStatus, setOpenCreateStatus] = useState(false);
+  const [statusText, setStatusText] = useState("What's on your mind, Dinh?")
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
   return (
     <>
       {openCreateStatus && (
-        <CreateStatus setOpenCreateStatus={setOpenCreateStatus} />
+        <CreateStatus setOpenCreateStatus={setOpenCreateStatus} setStatusText={setStatusText}/>
       )}
       <div className={cx("home-wrapper")}>
         <Header />
         <div className={cx("home-container")}>
           <LeftSideBar />
-          <Content setOpenCreateStatus={setOpenCreateStatus} />
+          <Content setOpenCreateStatus={setOpenCreateStatus} statusText={statusText}/>
           <RightSideBar />
         </div>
       </div>

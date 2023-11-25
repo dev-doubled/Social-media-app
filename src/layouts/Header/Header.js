@@ -2,8 +2,9 @@ import React from "react";
 import classNames from "classnames/bind";
 import { Link } from "react-router-dom";
 import HeaderNav from "./HeaderNav";
-import styles from "./Header.module.scss";
 import UserImg from "~/assets/images/user.jpg";
+import Logo from "~/assets/images/logo.png"
+import styles from "./Header.module.scss";
 
 const cx = classNames.bind(styles);
 
@@ -41,7 +42,7 @@ function Header() {
       <div className={cx("header-container")}>
         <div className={cx("header-search")}>
           <Link to="/">
-            <i className={cx("fa-brands fa-facebook", "logo-icon")}></i>
+            <img src={Logo} alt="logo" className={cx("logo")}/>
           </Link>
           <div className={cx("search-container")}>
             <i
