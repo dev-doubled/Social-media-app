@@ -60,12 +60,12 @@ function ChooseProfilePicturePreview({
     };
     //Handle upload user avatar
     api
-      .post("/user/update-user-avatar", uploadUserAvatarData)
+      .post("/post/create", postData)
       .then((response) => {
-        setUserData(response.data);
         api
-          .post("/post/create", postData)
+          .post("/user/update-user-avatar", uploadUserAvatarData)
           .then((response) => {
+            setUserData(response.data);
             setShowChooseProfilePicturePreview(false);
             setChooseProfilePicture(false);
             callApiGetAllPost();

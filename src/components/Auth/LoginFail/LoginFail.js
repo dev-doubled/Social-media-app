@@ -159,7 +159,7 @@ function LoginFail({ onLogin, setRecovery }) {
                       />
                     </div>
                     <div className={cx("username")}>
-                      Login as {user.firstName} {user.surName}
+                      Login as {user.surName} {user.firstName}
                     </div>
                   </div>
                   <div className={cx("username-login")}>{user.email} </div>

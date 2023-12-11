@@ -20,7 +20,7 @@ const cx = classNames.bind(styles);
 
 function Status({ userData, data, isOpenStatusPopup, setIsOpenStatusPopup }) {
   const textareaRef = useRef(null);
-
+  const [userDataPosting, setUserDataPosting] = useState({});
   const [selectedReaction, setSelectedReaction] = useState(null);
   const [isSelectedReaction, setIsSelectedReaction] = useState(false);
   const [countReaction, setCountReaction] = useState(0);
@@ -55,6 +55,18 @@ function Status({ userData, data, isOpenStatusPopup, setIsOpenStatusPopup }) {
     setIsOpenStatusPopup(false);
     document.body.style.overflow = "auto";
   };
+
+  //Get user-posting information
+  useEffect(() => {
+    api
+      .get(`/user/info/${data.author.userId}`)
+      .then((response) => {
+        setUserDataPosting(response.data.user);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }, [data.author.userId]);
 
   //Get reaction for post follow userId
   useEffect(() => {
@@ -285,6 +297,7 @@ function Status({ userData, data, isOpenStatusPopup, setIsOpenStatusPopup }) {
       {isOpenStatusPopup && dataStatus && (
         <StatusPopup
           userData={userData}
+          userDataPosting={userDataPosting}
           data={dataStatus}
           closeStatusPopup={closeStatusPopup}
           selectedReaction={selectedReaction}
@@ -308,8 +321,8 @@ function Status({ userData, data, isOpenStatusPopup, setIsOpenStatusPopup }) {
               <Link to="">
                 <img
                   src={
-                    userData.userAvatar
-                      ? userData.userAvatar
+                    data.author.userAvatar
+                      ? data.author.userAvatar
                       : UserAvatarDefault
                   }
                   alt="user-avt"
@@ -318,16 +331,16 @@ function Status({ userData, data, isOpenStatusPopup, setIsOpenStatusPopup }) {
               </Link>
               <div className={cx("user-information")}>
                 <Link to="" className={cx("user-name")}>
-                  {userData.surName + " " + userData.firstName}{" "}
+                  {data.author.userName}{" "}
                 </Link>
                 {data.type === "avatarImage" && (
                   <span className={cx("sub-user-name")}>
-                    updated {userData.gender ? "his" : "her"} profile picture.
+                    updated {userDataPosting.gender ? "his" : "her"} profile picture.
                   </span>
                 )}
                 {data.type === "coverImage" && (
                   <span className={cx("sub-user-name")}>
-                    updated {userData.gender ? "his" : "her"} cover photo.
+                    updated {userDataPosting.gender ? "his" : "her"} cover photo.
                   </span>
                 )}
                 <div className={cx("status-information")}>

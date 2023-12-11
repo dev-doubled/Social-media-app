@@ -20,6 +20,7 @@ const validReactions = ["Like", "Love", "Care", "Haha", "Sad", "Wow", "Angry"];
 function StatusPopup({
   closeStatusPopup,
   userData,
+  userDataPosting,
   data,
   selectedReaction,
   setSelectedReaction,
@@ -199,16 +200,17 @@ function StatusPopup({
             </Link>
             <div className={cx("user-information")}>
               <Link to="" className={cx("user-name")}>
-                {data.author.userName}
-              </Link>{" "}
+                {data.author.userName}{" "}
+              </Link>
               {data.type === "avatarImage" && (
                 <span className={cx("sub-user-name")}>
-                  updated {userData.gender ? "his" : "her"} profile picture.
+                  updated {userDataPosting.gender ? "his" : "her"} profile
+                  picture.
                 </span>
               )}
               {data.type === "coverImage" && (
                 <span className={cx("sub-user-name")}>
-                  updated {userData.gender ? "his" : "her"} cover photo.
+                  updated {userDataPosting.gender ? "his" : "her"} cover photo.
                 </span>
               )}
               <div className={cx("status-information")}>
