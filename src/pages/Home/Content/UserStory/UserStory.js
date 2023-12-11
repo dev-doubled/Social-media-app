@@ -4,11 +4,10 @@ import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import styles from "./UserStory.module.scss";
-import UserImg from "~/assets/images/user.jpg";
-import UserStoryImg from "~/assets/images/use_2.jpg";
-import StoryImg from "~/assets/images/story.jpg";
+import UserImg from "~/assets/images/user-default.png";
+import { userStoryList } from "~/datas/UserStoryData";
 const cx = classNames.bind(styles);
-function UserStory() {
+function UserStory({ userData }) {
   const [renderTitle, setRenderTitle] = useState("Stories");
   const [currentSlide, setCurrentSlide] = useState(0);
 
@@ -29,11 +28,7 @@ function UserStory() {
   const [slidesToShow, setSlidesToShow] = useState(updateSlidesToShow);
   const [slidesToScroll, setSlidesToScroll] = useState(updateSlidesToScroll);
 
-  const arrayRenderStory = [
-    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
-    22,
-  ];
-  const numberOfSlides = arrayRenderStory.length + 1;
+  const numberOfSlides = userStoryList.length + 1;
 
   useEffect(() => {
     const handleResize = () => {
@@ -49,13 +44,15 @@ function UserStory() {
   }, []);
 
   const CustomPrevArrow = (props) => {
+    const isDisabled = props.currentSlide === 0;
+
     return (
       <div
         className={cx("custom-prev-arrow", {
-          disabled: props.currentSlide === 0,
+          disabled: isDisabled,
         })}
         onClick={() => {
-          if (props.currentSlide > 0) {
+          if (!isDisabled) {
             props.onClick();
           }
         }}
@@ -66,14 +63,16 @@ function UserStory() {
   };
 
   const CustomNextArrow = (props) => {
+    const isDisabled =
+      props.currentSlide === props.slideCount - props.slidesToShow;
+
     return (
       <div
         className={cx("custom-next-arrow", {
-          disabled:
-            props.currentSlide === props.slideCount - props.slidesToShow,
+          disabled: isDisabled,
         })}
         onClick={() => {
-          if (props.currentSlide < props.slideCount - props.slidesToShow) {
+          if (!isDisabled) {
             props.onClick();
           }
         }}
@@ -92,22 +91,14 @@ function UserStory() {
     beforeChange: (current, next) => {
       setCurrentSlide(next);
     },
-    prevArrow:
-      currentSlide === 0 ? (
-        <div style={{ display: "none" }}></div>
-      ) : (
-        <CustomPrevArrow currentSlide={currentSlide} />
-      ),
-    nextArrow:
-      currentSlide === numberOfSlides - slidesToShow ? (
-        <div style={{ display: "none" }}></div>
-      ) : (
-        <CustomNextArrow
-          currentSlide={currentSlide}
-          slideCount={numberOfSlides}
-          slidesToShow={slidesToShow}
-        />
-      ),
+    prevArrow: <CustomPrevArrow currentSlide={currentSlide} />,
+    nextArrow: (
+      <CustomNextArrow
+        currentSlide={currentSlide}
+        slideCount={numberOfSlides}
+        slidesToShow={slidesToShow}
+      />
+    ),
   };
 
   return (
@@ -137,9 +128,9 @@ function UserStory() {
           {renderTitle === "Stories" ? (
             <div className={cx("stories-content-list")}>
               <Slider {...sliderSettings} className={cx("custom-slider")}>
-                <CreateStories />
-                {arrayRenderStory.map((item, index) => (
-                  <Story key={index} />
+                <CreateStories userData={userData} />
+                {userStoryList.map((story, index) => (
+                  <Story key={index} story={story} />
                 ))}
               </Slider>
             </div>
@@ -147,9 +138,9 @@ function UserStory() {
             <div className={cx("reels-content")}>
               <div className={cx("stories-content-list")}>
                 <Slider {...sliderSettings} className={cx("custom-slider")}>
-                  <CreateStories />
-                  {arrayRenderStory.map((item, index) => (
-                    <Story key={index} />
+                  <CreateStories userData={userData} />
+                  {userStoryList.map((story, index) => (
+                    <Story key={index} story={story} />
                   ))}
                 </Slider>
               </div>
@@ -161,12 +152,16 @@ function UserStory() {
   );
 }
 
-const CreateStories = () => {
+const CreateStories = ({ userData }) => {
   return (
     <div className={cx("stories-content")}>
       <div className={cx("create-story")}>
         <div className={cx("user-image")}>
-          <img src={UserImg} alt="user-avt" className={cx("user-avt")} />
+          <img
+            src={userData.userAvatar ? userData.userAvatar : UserImg}
+            alt="user-avt"
+            className={cx("user-avt")}
+          />
         </div>
         <div className={cx("create-icon")}>
           <i className={cx("fa-regular fa-plus", "icon")}></i>
@@ -177,9 +172,9 @@ const CreateStories = () => {
   );
 };
 
-const Story = () => {
+const Story = ({ story }) => {
   const storyStyle = {
-    backgroundImage: `url(${StoryImg})`,
+    backgroundImage: `url(${story.userStory})`,
     backgroundSize: "cover",
     backgroundPosition: "center",
     backgroundRepeat: "no-repeat",
@@ -188,10 +183,10 @@ const Story = () => {
     <div className={cx("stories-content")}>
       <div className={cx("upload-story")} style={storyStyle}>
         <div className={cx("user-avt")}>
-          <img src={UserStoryImg} alt="user-avt" className={cx("user-img")} />
+          <img src={story.avatar} alt="user-avt" className={cx("user-img")} />
           <div className={cx("active-dot")}></div>
         </div>
-        <div className={cx("user-name")}>Nguyen Thuc Thuy Tien</div>
+        <div className={cx("user-name")}>{story.name}</div>
       </div>
     </div>
   );

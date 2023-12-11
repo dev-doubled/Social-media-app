@@ -1,7 +1,10 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import classNames from "classnames/bind";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
+import { AuthContext } from "~/contexts/AuthContext";
 import api from "~/services/apiService";
+import { encryptUserId } from "~/utils/hashUserId";
 import TokenService from "~/services/tokenServices";
 import facebookImg from "~/assets/images/facebook.svg";
 import userAvt from "~/assets/images/user-default.png";
@@ -56,14 +59,15 @@ const linkList = [
   "Contact uploading and non-users",
 ];
 const currentYear = new Date().getFullYear();
-function LoginFail() {
+function LoginFail({ onLogin, setRecovery }) {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { setUserId } = useContext(AuthContext);
   const [user, setUser] = useState({});
   const [typePassword, setTypePassword] = useState("password");
   const [password, setPassword] = useState("");
   const [errorMsg, setErrorMsg] = useState("Password incorrect");
   const [loading, setLoading] = useState(false);
-
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const username = params.get("username");
@@ -95,7 +99,6 @@ function LoginFail() {
         username: user.email,
         password: password,
       };
-      console.log(loginData);
       api
         .post("/auth/login", loginData)
         .then((response) => {
@@ -104,8 +107,14 @@ function LoginFail() {
           const refreshToken = response.data.refreshToken;
           TokenService.setAccessToken(accessToken);
           TokenService.setRefreshToken(refreshToken);
-          // setIsAuthenticated(true);
-          window.location.href = "/";
+          const decodeAccessToken = jwtDecode(accessToken);
+          const userId = decodeAccessToken.userId;
+          const encodeUserId = encryptUserId(
+            userId,
+            process.env.REACT_APP_SECRET_KEY_ENCODE
+          );
+          setUserId(encodeUserId);
+          onLogin();
         })
         .catch((error) => {
           const errorMessage = error.response.data.error;
@@ -116,8 +125,9 @@ function LoginFail() {
           ) {
             setErrorMsg("Password incorrect");
           } else if (errorMessage === "Account is locked.") {
-            const url = `/login/recovery?email=${user.email}`
-            window.location.href = url;
+            setRecovery(true);
+            const url = `/login/recovery?email=${user.email}`;
+            navigate(url);
           } else {
             setErrorMsg(errorMessage);
           }

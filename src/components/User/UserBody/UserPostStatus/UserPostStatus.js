@@ -1,21 +1,27 @@
 import classNames from "classnames/bind";
 import styles from "./UserPostStatus.module.scss";
-import UserImg from "~/assets/images/user.jpg";
+import UserImg from "~/assets/images/user-default.png";
 
 const cx = classNames.bind(styles);
-function UserPostStatus({ setShowCreateStatus }) {
+function UserPostStatus({ openCreateStatus, statusText, userData }) {
   return (
     <div className={cx("user-post-status-wrapper")}>
       <div className={cx("user-post-status-container")}>
         <div className={cx("status-content")}>
           <div className={cx("user-avt")}>
-            <img src={UserImg} alt="user-img" className={cx("user-img")} />
+            <img
+              src={userData.userAvatar ? userData.userAvatar : UserImg}
+              alt="user-img"
+              className={cx("user-img")}
+            />
           </div>
           <div
             className={cx("upload-status")}
-            onClick={() => setShowCreateStatus(true)}
+            onClick={() => openCreateStatus()}
           >
-            <div className={cx("status-text")}>What's on your mind, Dinh?</div>
+            <div className={cx("status-text")}>
+              {statusText === "" ? `What's on your mind?` : statusText}
+            </div>
           </div>
         </div>
         <div className={cx("status-options")}>
@@ -26,7 +32,7 @@ function UserPostStatus({ setShowCreateStatus }) {
             </div>
             <div
               className={cx("photo-video")}
-              onClick={() => setShowCreateStatus(true)}
+              onClick={() => openCreateStatus()}
             >
               <i className={cx("fa-regular fa-image", "icon")}></i>
               <span className={cx("text")}>Photo/video</span>

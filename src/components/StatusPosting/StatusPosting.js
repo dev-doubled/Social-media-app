@@ -1,44 +1,36 @@
 import React, { useRef, useState, useEffect } from "react";
 import classNames from "classnames/bind";
 import { Link } from "react-router-dom";
+import { formatDistanceToNow } from "date-fns";
+import api from "~/services/apiService";
 import ImageStatus from "./ImageStatus";
+import ImageAvatarStatus from "./ImageAvatarStatus";
+import ImageCoverStatus from "./ImageCoverStatus";
 import Reactions from "~/components/Status/Reactions";
 import ReactionUI from "./ReactionUI";
-import Comment from "~/components/Status/Comment";
-import styles from "./StatusPosting.module.scss";
-import userImg from "~/assets/images/user.jpg";
+// import Comment from "~/components/Status/Comment";
 import likeIcon from "~/assets/images/like.png";
 import hahaIcon from "~/assets/images/haha.png";
 import loveIcon from "~/assets/images/love.png";
 import ShareOptions from "~/components/Status/ShareOptions";
+import styles from "./StatusPosting.module.scss";
 const cx = classNames.bind(styles);
 
-const longContent = `DÒNG TIỀN ĐANG DẦN TRỞ LẠI THỊ TRƯỜNG CRYPTO? 
-Theo dữ liệu của CoinShares, dòng tiền đầu tư các quỹ đổ vào thị trường crypto trong tuần qua đạt mức cao nhất kể từ tháng 07/2022 với hơn $326M
-CoinShares cho biết rằng sự gia tăng này được thúc đẩy bởi sự lạc quan ngày càng gia tăng từ các nhà đầu tư rằng SEC có thể sớm phê duyệt quỹ Spot Bitcoin ETF.
-Trong đó, Bitcoin chiếm 90%  tổng giá trị vốn đầu tư, lên đến $296 triệu USD. Đồng thời, dòng tiền cũng thể sự lạc quan với Altcoin, với gần 24 triệu USD đổ vào SOL và một số Altcoin khác như LTC, XRP, ADA,...
-Tuy nhiên, sự lạc quan này không đến với ETH, với khoảng $6M outflow, nâng tổng số vốn rút khỏi ETH lên $10.7M, mặc dù thị trường đón nhận sự gia tăng dòng tiền tích cực trong thời gian qua
-Mặc dù dòng tiền chảy vào thị trường trong tuần trước khá lớn nhưng dòng vốn vào hàng tuần này chỉ xếp thứ 21 lớn nhất trong lịch sử
-Tuy vậy, có thể thấy rõ rằng dòng tiền đã bắt đầu có sự dịch chuyển và thị trường đã lạc quan hơn rất nhiều trong những ngày gần đây. Liệu đây sẽ là dấu hiệu tích cực sau một thời gian downtrend nhàm chán?
-#HoangMinhThien #Crypto #BTC #Bitcoin`;
-
-const images = [
-  "https://firebasestorage.googleapis.com/v0/b/social-media-app-44a6c.appspot.com/o/postImages%2Fcute.jpg68296ece-5e54-4c2e-9ad9-91fc9fd95d4d?alt=media&token=39704d54-24bf-4b20-bba5-5148db95afb5",
-];
-
-function Status() {
+function Status({ userData, data }) {
   const textareaRef = useRef(null);
-  const [showFullContent, setShowFullContent] = useState(false);
+
+  const [selectedReaction, setSelectedReaction] = useState(null);
+  const [countReaction, setCountReaction] = useState(0);
+  // const [countComment, setCountComment] = useState(0)
+
+  const [commentContent, setCommentContent] = useState("");
+
+  const [textareaRows, setTextareaRows] = useState(1);
 
   const [mouseIsOver, setMouseIsOver] = useState(false);
   const [showReactions, setShowReactions] = useState(false);
-  const [selectedReaction, setSelectedReaction] = useState(null);
-
+  const [showFullContent, setShowFullContent] = useState(false);
   const [showFullComment, setShowFullComment] = useState(false);
-
-  const [commentContent, setCommentContent] = useState("");
-  const [textareaRows, setTextareaRows] = useState(1);
-
   const [showShare, setShowShare] = useState(false);
 
   const validReactions = [
@@ -50,6 +42,32 @@ function Status() {
     "Wow",
     "Angry",
   ];
+
+  useEffect(() => {
+    api
+      .get(`/post/get-reaction/${data._id}/${userData.userId}`)
+      .then((response) => {
+        if (response.data !== null) {
+          setSelectedReaction(response.data.reaction);
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }, [data._id, userData.userId]);
+
+  useEffect(() => {
+    api
+      .get(`/post/get-all-reaction/${data._id}`)
+      .then((response) => {
+        if (response.data !== null) {
+          setCountReaction(response.data.reactions.length);
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }, [data._id]);
 
   useEffect(() => {
     let timeout;
@@ -85,17 +103,57 @@ function Status() {
     }
   }, [commentContent, showFullComment]);
 
+  const getFormattedTimestamp = (createdAt) => {
+    const distance = formatDistanceToNow(new Date(createdAt), {
+      addSuffix: true,
+    });
+
+    if (distance === "less than a minute ago") {
+      return "few seconds ago";
+    }
+    return distance;
+  };
+
   const toggleContent = () => {
     setShowFullContent(!showFullContent);
   };
   const handleReactionClick = (reactionContent) => {
     setSelectedReaction(reactionContent);
+    if (selectedReaction === null) {
+      setCountReaction((prev) => prev + 1);
+    }
+    const reactionData = {
+      userId: userData.userId,
+      reaction: reactionContent,
+    };
+    callApiAddReaction(data._id, reactionData);
   };
   const handleDefaultClick = () => {
     if (validReactions.includes(selectedReaction)) {
       setSelectedReaction(null);
+      setCountReaction(countReaction - 1);
+      const reactionData = {
+        userId: userData.userId,
+        reaction: null,
+      };
+      api
+        .post(`/post/add-reaction/${data._id}`, reactionData)
+        .then((response) => {
+          console.log(response);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
     } else {
       setSelectedReaction("Like");
+      if (selectedReaction === null) {
+        setCountReaction((prev) => prev + 1);
+      }
+      const reactionData = {
+        userId: userData.userId,
+        reaction: "Like",
+      };
+      callApiAddReaction(data._id, reactionData);
     }
   };
   const handleContentChange = (e) => {
@@ -110,6 +168,16 @@ function Status() {
       handleSendComment();
     }
   };
+  const callApiAddReaction = (postId, reactionData) => {
+    api
+      .post(`/post/add-reaction/${postId}`, reactionData)
+      .then((response) => {
+        console.log(response);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
   return (
     <div className={cx("status-main")} onClick={() => setShowShare(false)}>
       <div className={cx("status-wrapper")}>
@@ -117,14 +185,25 @@ function Status() {
         <div className={cx("status-main-header")}>
           <div className={cx("status-header")}>
             <Link to="">
-              <img src={userImg} alt="user-avt" className={cx("user-img")} />
+              <img
+                src={userData.userAvatar}
+                alt="user-avt"
+                className={cx("user-img")}
+              />
             </Link>
             <div className={cx("user-information")}>
               <Link to="" className={cx("user-name")}>
-                Dinh Duy
+                {data.author.userName}{" "}
               </Link>
+              {data.type === "avatarImage" && (
+                <span className={cx("sub-user-name")}>
+                  updated {userData.gender ? "his" : "her"} profile picture.
+                </span>
+              )}
               <div className={cx("status-information")}>
-                <div className={cx("status-time")}>2 hours ago</div>
+                <div className={cx("status-time")}>
+                  {getFormattedTimestamp(data.createdAt)}
+                </div>
                 <div className={cx("status-audience")}>
                   <i className={cx("fa-regular fa-earth-americas", "icon")}></i>
                 </div>
@@ -142,39 +221,73 @@ function Status() {
         </div>
 
         {/*Status caption*/}
-        <div className={cx("status-main-container")}>
-          <pre className={cx("status-caption")}>
-            {longContent.length > 300
-              ? showFullContent
-                ? longContent
-                : longContent.slice(0, 300)
-              : longContent}
-            {longContent.length > 300 && !showFullContent && (
-              <>
-                ....
-                <button onClick={toggleContent} className={cx("see-more-btn")}>
-                  See More
-                </button>
-              </>
-            )}
-          </pre>
-        </div>
+        {data.caption && (
+          <div className={cx("status-main-container")}>
+            <pre className={cx("status-caption")}>
+              {data.caption.length > 300
+                ? showFullContent
+                  ? data.caption
+                  : data.caption.slice(0, 300)
+                : data.caption}
+              {data.caption.length > 300 && !showFullContent && (
+                <>
+                  ....
+                  <button
+                    onClick={toggleContent}
+                    className={cx("see-more-btn")}
+                  >
+                    See More
+                  </button>
+                </>
+              )}
+            </pre>
+          </div>
+        )}
 
         {/*Status image*/}
-        <ImageStatus images={images} />
+        {data.image && data.type === "normal" && (
+          <ImageStatus image={data.image} />
+        )}
+        {data.image && data.type === "avatarImage" && (
+          <ImageAvatarStatus
+            image={data.image}
+            coverImage={userData.coverPicture}
+          />
+        )}
+        {data.image && data.type === "coverImage" && (
+          <ImageCoverStatus image={data.image} />
+        )}
 
         {/*Status reactions*/}
-        <div className={cx("reaction-comment")}>
-          <div className={cx("reaction")}>
-            <div className={cx("reaction-icon")}>
-              <img src={likeIcon} alt="like-icon" className={cx("icon-like")} />
-              <img src={loveIcon} alt="like-icon" className={cx("icon-love")} />
-              <img src={hahaIcon} alt="like-icon" className={cx("icon-haha")} />
+        {selectedReaction && (
+          <div className={cx("reaction-comment")}>
+            <div className={cx("reaction")}>
+              {countReaction > 0 && (
+                <div className={cx("reaction-icon")}>
+                  <img
+                    src={likeIcon}
+                    alt="like-icon"
+                    className={cx("icon-like")}
+                  />
+                  <img
+                    src={loveIcon}
+                    alt="like-icon"
+                    className={cx("icon-love")}
+                  />
+                  <img
+                    src={hahaIcon}
+                    alt="like-icon"
+                    className={cx("icon-haha")}
+                  />
+                </div>
+              )}
+              <div className={cx("reaction-count")}>
+                {countReaction > 0 && countReaction}
+              </div>
             </div>
-            <div className={cx("reaction-count")}>22</div>
+            {/* <div className={cx("comment")}>22 comments</div> */}
           </div>
-          <div className={cx("comment")}>22 comments</div>
-        </div>
+        )}
 
         {/*Status choose reactions*/}
         <div className={cx("status-options-wrapper")}>
@@ -225,7 +338,11 @@ function Status() {
         <div className={cx("status-comment")}>
           <div className={cx("post-comment")}>
             <div className={cx("user-avt")}>
-              <img src={userImg} alt="avatar" className={cx("avatar")} />
+              <img
+                src={userData.userAvatar}
+                alt="avatar"
+                className={cx("avatar")}
+              />
             </div>
 
             {showFullComment ? (
@@ -309,8 +426,8 @@ function Status() {
 
         {/*Status comment list*/}
         <div className={cx("status-comment-list")}>
-          <Comment />
-          <Comment />
+          {/* <Comment />
+          <Comment /> */}
         </div>
       </div>
     </div>

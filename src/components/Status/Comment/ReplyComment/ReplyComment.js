@@ -1,41 +1,84 @@
-import React, { useState } from "react";
 import classNames from "classnames/bind";
+import { formatDistanceStrict } from "date-fns";
+import { useState } from "react";
 import styles from "./ReplyComment.module.scss";
-import userImg from "~/assets/images/user.jpg";
 const cx = classNames.bind(styles);
-const replyComment = `Không biết có cậu nào quan tâm chủ đề này không nhỉ? MeLy sẽ làm riêng 1 topic kĩ hơn về nó nè!. Đoạn Factory mình thường hay dùng switch case. Cái này nó tuân theo cái O trong SOLID. Sau này có đẻ thêm mới một class ví dụ Motobike thì chỉ cần thêm vào trong Factory là được`;
 
-function ReplyComment() {
+function ReplyComment({ replyComment }) {
   const [showFullReplyComment, setShowFullReplyComment] = useState(false);
   const toggleContent = () => {
     setShowFullReplyComment(!showFullReplyComment);
   };
+  const getFormattedTimestamp = (createdAt) => {
+    const distance = formatDistanceStrict(new Date(createdAt), new Date(), {
+      addSuffix: true,
+    });
+    const match = distance.match(/(\d+) (\w+)/);
+    if (!match) {
+      return distance;
+    }
+    const [, value, unit] = match;
+    switch (unit) {
+      case "less":
+        return "1s";
+      case "seconds":
+        return value === "1" ? "1s" : `${value}s`;
+      case "minute":
+        return value === "1" ? "1m" : `${value}m`;
+      case "minutes":
+        return `${value}m`;
+      case "hour":
+        return value === "1" ? "1h" : `${value}h`;
+      case "hours":
+        return value === "1" ? "1h" : `${value}h`;
+      case "day":
+        return value === "1" ? "1d" : `${value}d`;
+      case "days":
+        return value === "1" ? "1d" : `${value}d`;
+      case "month":
+        return value === "1" ? "1mo" : `${value}mo`;
+      case "months":
+        return value === "1" ? "1mo" : `${value}mo`;
+      case "year":
+        return value === "1" ? "1y" : `${value}y`;
+      case "years":
+        return value === "1" ? "1y" : `${value}y`;
+      default:
+        return distance;
+    }
+  };
+
   return (
     <div className={cx("reply-comment")}>
       <div className={cx("user-avatar")}>
-        <img src={userImg} alt="user-avt" className={cx("avt")} />
+        <img
+          src={replyComment.author.userAvatar}
+          alt="user-avt"
+          className={cx("avt")}
+        />
       </div>
       <div className={cx("comment-content-wrapper")}>
         <div className={cx("main-comment")}>
           <div className={cx("comment-content-container")}>
-            <div className={cx("username")}>Đình Duy</div>
+            <div className={cx("username")}>{replyComment.author.userName}</div>
             <div className={cx("comment-content")}>
-              {replyComment.length > 200
+              {replyComment.replyContent.length > 200
                 ? showFullReplyComment
-                  ? replyComment
-                  : replyComment.slice(0, 200)
-                : replyComment}
-              {replyComment.length > 200 && !showFullReplyComment && (
-                <>
-                  ....
-                  <button
-                    onClick={toggleContent}
-                    className={cx("see-more-btn")}
-                  >
-                    See More
-                  </button>
-                </>
-              )}
+                  ? replyComment.replyContent
+                  : replyComment.replyContent.slice(0, 200)
+                : replyComment.replyContent}
+              {replyComment.replyContent.length > 200 &&
+                !showFullReplyComment && (
+                  <>
+                    ....
+                    <button
+                      onClick={toggleContent}
+                      className={cx("see-more-btn")}
+                    >
+                      See More
+                    </button>
+                  </>
+                )}
             </div>
           </div>
           <div className={cx("setting-comment")}>
@@ -43,7 +86,7 @@ function ReplyComment() {
           </div>
         </div>
         <div className={cx("comment-options")}>
-          <div className={cx("comment-time")}>25m</div>
+          <div className={cx("comment-time")}>{getFormattedTimestamp(replyComment.createdAt)}</div>
           <div className={cx("comment-reaction")}>Like</div>
           <div className={cx("comment-reply")}>Reply</div>
         </div>

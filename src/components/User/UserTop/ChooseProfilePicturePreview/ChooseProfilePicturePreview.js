@@ -1,20 +1,26 @@
 import React, { useEffect, useRef, useState } from "react";
 import classNames from "classnames/bind";
+import { BeatLoader } from "react-spinners";
+import api from "~/services/apiService";
 import DiscardChange from "./DiscardChange";
 import styles from "./ChooseProfilePicturePreview.module.scss";
 const cx = classNames.bind(styles);
 function ChooseProfilePicturePreview({
+  userData,
+  setUserData,
+  userAvatarSelected,
+  setUserAvatarSelected,
   avatarImagePreview,
-  setChooseProfilePicture,
   setShowChooseProfilePicturePreview,
-  setAvatar,
+  setChooseProfilePicture,
+  setStatusData,
 }) {
   const textareaRef = useRef(null);
   const [descriptionContent, setDescriptionContent] = useState("");
   const [textareaRows, setTextareaRows] = useState(1);
   const [countLengthDesc, setCountLengthDesc] = useState(0);
-
   const [showDiscardChange, setShowDiscardChange] = useState(false);
+  const [loadingSaveChange, setLoadingSaveChange] = useState(false);
 
   useEffect(() => {
     // Automatically resize the textarea when the content is changed
@@ -37,23 +43,76 @@ function ChooseProfilePicturePreview({
   };
 
   const handleSaveChooseProfile = () => {
-    setAvatar(avatarImagePreview);
-    setShowChooseProfilePicturePreview(false);
-    setChooseProfilePicture(false);
+    setLoadingSaveChange(true);
+    const postData = {
+      type: "avatarImage",
+      author: {
+        userId: userData.userId,
+        userName: userData.surName + " " + userData.firstName,
+        userAvatar: userData.userAvatar,
+      },
+      caption: descriptionContent,
+      image: userAvatarSelected,
+    };
+    const uploadUserAvatarData = {
+      userId: userData.userId,
+      userAvatar: userAvatarSelected,
+    };
+    //Handle upload user avatar
+    api
+      .post("/user/update-user-avatar", uploadUserAvatarData)
+      .then((response) => {
+        setUserData(response.data);
+        api
+          .post("/post/create", postData)
+          .then((response) => {
+            setShowChooseProfilePicturePreview(false);
+            setChooseProfilePicture(false);
+            callApiGetAllPost();
+            // window.location.reload();
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
+  const callApiGetAllPost = () => {
+    api
+      .get(`/post/get-all-by-user/${userData.userId}`)
+      .then((response) => {
+        setStatusData(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   };
   return (
     <>
       {showDiscardChange && (
         <DiscardChange
+          userAvatarSelected={userAvatarSelected}
+          setUserAvatarSelected={setUserAvatarSelected}
           setShowDiscardChange={setShowDiscardChange}
           setShowChooseProfilePicturePreview={
             setShowChooseProfilePicturePreview
           }
-          setChooseProfilePicture={setChooseProfilePicture}
         />
       )}
       <div className={cx("choose-picture-preview-wrapper")}>
         <div className={cx("choose-picture-preview-container")}>
+          {loadingSaveChange && (
+            <div className={cx("choose-picture-preview-loading")}>
+              <BeatLoader
+                size={10}
+                color="#0866ff"
+                className={cx("loading-spinner")}
+              />
+            </div>
+          )}
           <div className={cx("choose-picture-header")}>
             <div className={cx("empty")}></div>
             <div className={cx("title")}>Choose profile picture</div>

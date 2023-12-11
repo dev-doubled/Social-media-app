@@ -19,8 +19,8 @@ import Group_1Img from "~/assets/images/group_1.jpg";
 import Group_3Img from "~/assets/images/group_3.jpg";
 import Group_4Img from "~/assets/images/group_4.jpg";
 import Group_5Img from "~/assets/images/group_5.jpg";
+import UserDefaultImg from "~/assets/images/user-default.png";
 
-import UserImg from "~/assets/images/user.jpg";
 const cx = classNames.bind(styles);
 
 const menu = [
@@ -105,14 +105,15 @@ const groups = [
     image: Group_4Img,
     path: "",
   },
-]
+];
 
-function LeftSideBar() {
+function LeftSideBar({ userData }) {
   const [toggleSeeMore, setToggleSerMore] = useState(false);
   const [titleToggle, setTitleToggle] = useState("See more");
   const [iconToggle, setIconToggle] = useState("fa-solid fa-chevron-down");
   const [menuDefault, setMenuDefault] = useState(menu);
   const [scrolling, setScrolling] = useState(false);
+  const userUrl = "/profile?id=" + userData.userId;
 
   const handleSeeMore = () => {
     setScrolling(!scrolling);
@@ -132,13 +133,15 @@ function LeftSideBar() {
       <div className={cx("left-side-bar-wrapper")}>
         <div className={cx("left-side-bar-container")}>
           <div className={scrolling ? cx("user-scroll") : cx("user")}>
-            <Link to="/profile" className={cx("user-info")}>
+            <Link to={userUrl} className={cx("user-info")}>
               <img
-                src={UserImg}
+                src={userData.userAvatar ? userData.userAvatar : UserDefaultImg}
                 alt="user-avt"
                 className={cx("user-avt")}
               />
-              <div className={cx("username")}>Dev DoubleD</div>
+              <div className={cx("username")}>
+                {userData.surName + " " + userData.firstName}
+              </div>
             </Link>
           </div>
           <div className={cx("menu")}>

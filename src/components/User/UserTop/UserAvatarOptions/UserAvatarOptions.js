@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import styles from "./UserAvatarOptions.module.scss";
 const cx = classNames.bind(styles);
 function UserAvatarOptions({ setChooseProfilePicture, image }) {
-  console.log(image);
   const photoUrl = '/photo?psrc=' + encodeURIComponent(image);
   return (
     <div className={cx("avatar-options-wrapper")}>

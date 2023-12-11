@@ -1,21 +1,27 @@
 import classNames from "classnames/bind";
-import UserImg from "~/assets/images/user.jpg";
+import UserImg from "~/assets/images/user-default.png";
 import styles from "./PostStatus.module.scss";
+import { Link } from "react-router-dom";
 const cx = classNames.bind(styles);
-function PostStatus({ setOpenCreateStatus, statusText }) {
+function PostStatus({ openCreateStatus, statusText, userData }) {
+  const url = "/profile?id=" + userData.userId;
   return (
     <div className={cx("post-status-wrapper")}>
       <div className={cx("post-status-container")}>
         <div className={cx("status-content")}>
-          <div className={cx("user-avt")}>
-            <img src={UserImg} alt="user-img" className={cx("user-img")} />
-          </div>
+          <Link to={url} className={cx("user-avt")}>
+            <img
+              src={userData.userAvatar ? userData.userAvatar : UserImg}
+              alt="user-img"
+              className={cx("user-img")}
+            />
+          </Link>
           <div
             className={cx("upload-status")}
-            onClick={() => setOpenCreateStatus(true)}
+            onClick={() => openCreateStatus()}
           >
             <div className={cx("status-text")}>
-              {statusText === "" ? "What's on your mind, Dinh?" : statusText}
+              {statusText === "" ? `What's on your mind?` : statusText}
             </div>
           </div>
         </div>
@@ -27,7 +33,7 @@ function PostStatus({ setOpenCreateStatus, statusText }) {
             </div>
             <div
               className={cx("photo-video")}
-              onClick={() => setOpenCreateStatus(true)}
+              onClick={() => openCreateStatus()}
             >
               <i className={cx("fa-regular fa-image", "icon")}></i>
               <span className={cx("text")}>Photo/video</span>

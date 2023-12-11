@@ -11,16 +11,18 @@ import {
   deleteObject,
 } from "firebase/storage";
 import { v4 } from "uuid";
-import { storage } from "~/config/firebase";
+import { storage } from "~/configs/firebase";
 import styles from "./CreateStatus.module.scss";
-import UserImg from "~/assets/images/user.jpg";
+import UserImg from "~/assets/images/user-default.png";
 const cx = classNames.bind(styles);
-function CreateStatus({ setOpenCreateStatus, setStatusText }) {
+
+function CreateStatus({ closeCreateStatus, setStatusText, userData }) {
   const [postData, setPostData] = useState({
+    type: "normal",
     author: {
-      userName: "Duy Lee",
-      userAvatar:
-        "https://scontent.fsgn2-5.fna.fbcdn.net/v/t39.30808-6/305130711_3224501994471146_3077752946256013623_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=5f2048&_nc_ohc=pK8Nk0P-qSIAX-wdtx_&_nc_ht=scontent.fsgn2-5.fna&oh=00_AfBYIRRhtOhQrV2C2T0VmSZtePJ4qsoCTzkNBMuOLg5s_w&oe=6559E906",
+      userId: userData.userId,
+      userName: userData.surName + " " + userData.firstName,
+      userAvatar: userData.userAvatar,
     },
     caption: "",
     image: "",
@@ -107,7 +109,7 @@ function CreateStatus({ setOpenCreateStatus, setStatusText }) {
 
     //Upload Image to Firebase
 
-    const imageRef = ref(storage, `postImages/${file.name + v4()}`);
+    const imageRef = ref(storage, `postImages/${userData.userId}/${file.name + v4()}`);
     try {
       await uploadBytes(imageRef, file);
       const downloadURL = await getDownloadURL(imageRef);
@@ -170,7 +172,7 @@ function CreateStatus({ setOpenCreateStatus, setStatusText }) {
         localStorage.removeItem("postImage");
         localStorage.removeItem("postImageSave");
         setLoading(false);
-        window.location.href = "/";
+        window.location.href = `/profile?id=${userData.userId}`;
       })
       .catch((err) => {
         console.log(err);
@@ -201,15 +203,22 @@ function CreateStatus({ setOpenCreateStatus, setStatusText }) {
             <div className={cx("title")}>Create Post</div>
             <div
               className={cx("close-icon")}
-              onClick={() => setOpenCreateStatus(false)}
+              onClick={() => closeCreateStatus()}
             >
               <i className={cx("fa-light fa-xmark", "icon")}></i>
             </div>
           </div>
           <div className={cx("user-info")}>
-            <img src={UserImg} alt="user-avt" className={cx("user-avt")} />
+            <img
+              src={userData.userAvatar ? userData.userAvatar : UserImg}
+              alt="user-avt"
+              className={cx("user-avt")}
+            />
+
             <div className={cx("info")}>
-              <div className={cx("username")}>Dinh Duy</div>
+              <div className={cx("username")}>
+                {userData.surName + " " + userData.firstName}
+              </div>
               <div className={cx("post-audience")}>
                 <i
                   className={cx(

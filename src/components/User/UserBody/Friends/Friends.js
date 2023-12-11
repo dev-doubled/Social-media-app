@@ -10,7 +10,7 @@ function Friends() {
           <div className={cx("title")}>Friends</div>
           <div className={cx("see-more-friend")}>See all friends</div>
         </div>
-        <FriendsGrid />
+        {/* <FriendsGrid /> */}
       </div>
     </div>
   );

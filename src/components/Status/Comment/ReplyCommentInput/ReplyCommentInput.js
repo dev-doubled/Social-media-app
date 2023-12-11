@@ -1,11 +1,18 @@
 import React, { useEffect, useRef, useState } from "react";
 import classNames from "classnames/bind";
+import api from "~/services/apiService";
 import styles from "./ReplyCommentInput.module.scss";
-import userImg from "~/assets/images/user.jpg";
+import userImg from "~/assets/images/user-default.png";
 const cx = classNames.bind(styles);
-function ReplyComment({ showReplyComment }) {
+function ReplyCommentInput({
+  userData,
+  showReplyComment,
+  comment,
+  setListReplyComments,
+  setCountComment,
+}) {
   const textareaRef = useRef(null);
-  const [commentContent, setCommentContent] = useState("");
+  const [replyContent, setReplyContent] = useState("");
   const [textareaRows, setTextareaRows] = useState(1);
   useEffect(() => {
     if (showReplyComment) {
@@ -22,33 +29,65 @@ function ReplyComment({ showReplyComment }) {
       const calculatedRows = Math.max(1, Math.ceil(extraLines));
       setTextareaRows(calculatedRows);
     }
-  }, [commentContent, showReplyComment]);
+  }, [replyContent, showReplyComment]);
 
   const handleContentChange = (e) => {
-    setCommentContent(e.target.value);
+    setReplyContent(e.target.value);
   };
-  const handleSendComment = () => {
-    console.log(commentContent);
+  const handleSendReplyComment = () => {
+    const replyCommentData = {
+      commentID: comment._id,
+      author: {
+        userId: userData.userId,
+        userName: userData.surName + " " + userData.firstName,
+        userAvatar: userData.userAvatar,
+      },
+      replyContent: replyContent,
+    };
+    api
+      .post("/replyComment/create", replyCommentData)
+      .then((response) => {
+        setReplyContent("");
+        callApiGetAllReplyComments();
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+  const callApiGetAllReplyComments = () => {
+    api
+      .get(`/replyComment/get-all-reply/${comment._id}`)
+      .then((response) => {
+        setListReplyComments(response.data);
+        setCountComment((prevCount) => prevCount + 1);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   };
   const handleKeyDown = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      handleSendComment();
+      handleSendReplyComment();
     }
   };
   return (
     <div className={cx("status-comment")}>
       <div className={cx("post-comment")}>
         <div className={cx("user-avt")}>
-          <img src={userImg} alt="avatar" className={cx("avatar")} />
+          <img
+            src={userData.userAvatar ? userData.userAvatar : userImg}
+            alt="avatar"
+            className={cx("avatar")}
+          />
         </div>
         <div className={cx("input-comment-active")}>
           <textarea
             className={cx("input-content")}
-            placeholder="Reply to Dinh Duy..."
+            placeholder={`Reply to ${comment.author.userName}`}
             onChange={handleContentChange}
             onKeyDown={handleKeyDown}
-            value={commentContent}
+            value={replyContent}
             rows={textareaRows}
             ref={textareaRef}
             autoFocus={true}
@@ -73,13 +112,13 @@ function ReplyComment({ showReplyComment }) {
             </div>
             <div
               className={
-                commentContent !== "" ? cx("send-btn-active") : cx("send-btn")
+                replyContent !== "" ? cx("send-btn-active") : cx("send-btn")
               }
             >
               <button
                 className={cx("btn")}
-                disabled={commentContent === ""}
-                onClick={handleSendComment}
+                disabled={replyContent === ""}
+                onClick={handleSendReplyComment}
               >
                 <i className={cx("fa-solid fa-paper-plane-top", "icon")}></i>
               </button>
@@ -91,4 +130,4 @@ function ReplyComment({ showReplyComment }) {
   );
 }
 
-export default ReplyComment;
+export default ReplyCommentInput;

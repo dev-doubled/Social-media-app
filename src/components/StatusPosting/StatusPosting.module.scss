@@ -50,6 +50,12 @@
           }
         }
 
+        .sub-user-name {
+          font-size: 15px;
+          font-weight: normal;
+          color: #737579;
+        }
+
         .status-information {
           cursor: pointer;
           user-select: none;
@@ -153,6 +159,66 @@
       }
     }
   }
+
+  .status-avatar-image {
+    position: relative;
+    width: 100%;
+    height: 448px;
+
+    .status-cover {
+      width: 100%;
+      height: 222px;
+      .cover-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+    }
+    .status-cover-default {
+      width: 100%;
+      height: 222px;
+      background-color: #e4e6eb;
+    }
+    .status-avatar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 448px;
+      padding: 24px 52px 28px 52px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-bottom: 1px solid #ced0d4;
+
+      .avatar-image {
+        cursor: pointer;
+        width: 396px;
+        height: 396px;
+        border-radius: 50%;
+        border: 4px solid #fff;
+
+        .avatar-img {
+          width: 100%;
+          height: 100%;
+          border-radius: 50%;
+          object-fit: cover;
+        }
+      }
+    }
+  }
+
+  .status-cover-image {
+    width: 100%;
+    height: 250px;
+
+    .cover-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
   .reaction-comment {
     height: 42px;
     margin: 0 16px;
@@ -160,6 +226,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    border-bottom: 1px solid #ced0d4;
 
     .reaction {
       display: flex;
@@ -231,8 +298,7 @@
     margin: 0 16px;
     display: flex;
     align-items: center;
-    border-top: 1px solid #e5e5e5;
-    border-bottom: 1px solid #e5e5e5;
+    border-bottom: 1px solid #ced0d4;
 
     .like {
       position: relative;
@@ -351,6 +417,7 @@
         .avatar {
           width: 100%;
           height: 100%;
+          object-fit: cover;
           border-radius: 50%;
         }
       }
@@ -397,7 +464,7 @@
       }
 
       .input-comment-active {
-        width: 100%;
+        width: calc(100% - 46px);
         height: fit-content;
         border-radius: 18px;
         background-color: #f0f2f5;
@@ -490,8 +557,4 @@
       }
     }
   }
-
-  // .status-comment-list {
-
-  // }
 }

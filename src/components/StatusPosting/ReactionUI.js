@@ -1,12 +1,12 @@
 import React from "react";
 import classNames from "classnames/bind";
-import styles from "./StatusPosting.module.scss";
 import Love from "~/assets/images/love.png";
 import Care from "~/assets/images/care.png";
 import Haha from "~/assets/images/haha.png";
 import Wow from "~/assets/images/wow.png";
 import Sad from "~/assets/images/sad.png";
 import Angry from "~/assets/images/angry.png";
+import styles from "./StatusPosting.module.scss";
 const cx = classNames.bind(styles);
 
 function ReactionUI({ reactionContent }) {

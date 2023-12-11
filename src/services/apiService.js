@@ -12,7 +12,7 @@ const excludedRoutes = [
   "/auth/re-send",
   "/auth/token",
   "/user/get-user",
-  "/user/change-password"
+  "/user/change-password",
 ];
 
 const api = axios.create({

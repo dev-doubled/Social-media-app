@@ -1,7 +1,10 @@
 import classNames from "classnames/bind";
-import { useEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { useContext, useEffect, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
 import api from "~/services/apiService";
+import { AuthContext } from "~/contexts/AuthContext";
+import { encryptUserId } from "~/utils/hashUserId";
 import TokenService from "~/services/tokenServices";
 import facebookLogo from "~/assets/images/facebook.svg";
 import SignUp from "~/components/Auth/SignUp";
@@ -57,8 +60,10 @@ const linkList = [
 ];
 const currentYear = new Date().getFullYear();
 
-function Login() {
+function Login({ onLogin, setIsSignup, setIsLoginFail }) {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { setUserId } = useContext(AuthContext);
   const [loginData, setLoginData] = useState({
     username: "",
     password: "",
@@ -72,7 +77,6 @@ function Login() {
   const [typePassword, setTypePassword] = useState("password");
   const [errorMsg, setErrorMsg] = useState("");
   const [confirmToken, setConfirmToken] = useState("");
-
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const message = params.get("message");
@@ -111,7 +115,14 @@ function Login() {
           const refreshToken = response.data.refreshToken;
           TokenService.setAccessToken(accessToken);
           TokenService.setRefreshToken(refreshToken);
-          window.location.href = "/";
+          const decodeAccessToken = jwtDecode(accessToken);
+          const userId = decodeAccessToken.userId;
+          const encodeUserId = encryptUserId(
+            userId,
+            process.env.REACT_APP_SECRET_KEY_ENCODE
+          );
+          setUserId(encodeUserId);
+          onLogin();
         })
         .catch((error) => {
           const errorMessage = error.response.data.error;
@@ -130,8 +141,9 @@ function Login() {
             errorMessage ===
             "Password incorrect. Please check your credentials."
           ) {
+            setIsLoginFail(true);
             const url = `/login/fail?username=${loginData.username}`;
-            window.location.href = url;
+            navigate(url);
           } else {
             setErrorMsg(errorMessage);
           }
@@ -155,6 +167,13 @@ function Login() {
         console.log(error);
       });
   };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleLogin();
+    }
+  };
   return (
     <>
       {showVerifyNotify && (
@@ -166,7 +185,9 @@ function Login() {
         />
       )}
       {loading && <LoadingSpinner loading={loading} />}
-      {showSignUp && <SignUp setShowSignUp={setShowSignUp} />}
+      {showSignUp && (
+        <SignUp setShowSignUp={setShowSignUp} setIsSignup={setIsSignup} />
+      )}
       <div className={cx("login-wrapper")}>
         <div className={cx("login-container")}>
           <div className={cx("login-main")}>
@@ -225,6 +246,7 @@ function Login() {
                         }}
                         onBlur={() => setInputPasswordAction(false)}
                         onChange={handleChangePassword}
+                        onKeyDown={handleKeyDown}
                       />
                       {loginData.password && (
                         <div

@@ -1,12 +1,17 @@
 import classNames from "classnames/bind";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
+import { BeatLoader } from "react-spinners";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { v4 } from "uuid";
+import { storage } from "~/configs/firebase";
 import UserDefault from "~/assets/images/user-default.png";
 import AddFriendRecommend from "~/components/User/UserTop/AddFriendRecommend";
 import ChooseProfilePicture from "~/components/User/UserTop/ChooseProfilePicture";
 import UserAvatarOptions from "~/components/User/UserTop/UserAvatarOptions";
 import UserPageMore from "~/components/User/UserTop/UserPageMore";
 import UserPageOptions from "~/components/User/UserTop/UserPageOptions";
+import UploadCoverImage from "~/components/User/UserTop/UploadCoverImage";
 import styles from "./UserProfileTop.module.scss";
 const cx = classNames.bind(styles);
 const selections = [
@@ -35,31 +40,67 @@ const selections = [
     text: "Check-ins",
   },
 ];
-function UserProfileTop() {
+function UserProfileTop({
+  userData,
+  setUserData,
+  onEditProfileClick,
+  setStatusData,
+}) {
   const fileCoverImageRef = useRef();
   const location = useLocation();
-  const [coverImagePreview, setCoverImagePreview] = useState(null);
+  const [coverImage, setCoverImage] = useState(null);
   const [avatar, setAvatar] = useState(null);
+  const [coverImageSelected, setCoverImageSelected] = useState(null);
   const [showMorePage, setShowMorePage] = useState(false);
   const [showUserPageOption, setShowUserPageOption] = useState(false);
   const [showAvatarOption, setShowAvatarOption] = useState(false);
   const [showChooseProfilePicture, setChooseProfilePicture] = useState(false);
   const [showAddFriendRec, setShowAddFriendRec] = useState(false);
+  const [showConfirmUploadCoverImage, setShowConfirmUploadCoverImage] =
+    useState(false);
+  const [showCoverImageOption, setShowCoverImageOption] = useState(true);
+  const [loadingUploadCoverImage, setLoadingUploadCoverImage] = useState(false);
 
-  const photoUrl = "/photo?psrc=" + encodeURIComponent(coverImagePreview);
+  useEffect(() => {
+    setCoverImage(userData.coverPicture);
+    setAvatar(userData.userAvatar);
+  }, [userData.coverPicture, userData.userAvatar]);
+
+  const photoUrl = "/photo?psrc=" + encodeURIComponent(userData.coverPicture);
   const handleClickCoverImage = () => {
     fileCoverImageRef.current.click();
   };
-  const handlePreviewCoverImage = (e) => {
+  const handlePreviewCoverImage = async (e) => {
+    setLoadingUploadCoverImage(true);
+    setShowCoverImageOption(false);
+    let file = null;
+    let url;
+
+    //Preview cover image
     if (e.target.files.length === 1) {
-      const file = e.target.files[0];
-      const url = URL.createObjectURL(file);
+      file = e.target.files[0];
+      url = URL.createObjectURL(file);
 
-      if (coverImagePreview) {
-        URL.revokeObjectURL(coverImagePreview);
+      if (coverImage) {
+        URL.revokeObjectURL(coverImage);
       }
+    }
 
-      setCoverImagePreview(url);
+    //Upload Cover Image to Firebase
+    const coverImageRef = ref(
+      storage,
+      `coverImages/${userData.userId}/${file.name + v4()}`
+    );
+    try {
+      await uploadBytes(coverImageRef, file);
+      const downloadURL = await getDownloadURL(coverImageRef);
+      setCoverImage(url);
+      setCoverImageSelected(downloadURL);
+      setLoadingUploadCoverImage(false);
+      setShowConfirmUploadCoverImage(true);
+      console.log("Cover image uploaded successfully");
+    } catch (error) {
+      console.error("Error uploading file:", error.message);
     }
   };
 
@@ -67,8 +108,10 @@ function UserProfileTop() {
     <>
       {showChooseProfilePicture && (
         <ChooseProfilePicture
+          userData={userData}
+          setUserData={setUserData}
           setChooseProfilePicture={setChooseProfilePicture}
-          setAvatar={setAvatar}
+          setStatusData={setStatusData}
         />
       )}
       <div
@@ -81,65 +124,92 @@ function UserProfileTop() {
       >
         {/* Cover photo */}
         <div className={cx("top-wrapper")}>
-          {coverImagePreview ? (
+          {showConfirmUploadCoverImage && (
+            <UploadCoverImage
+              userData={userData}
+              setUserData={setUserData}
+              setCoverImage={setCoverImage}
+              coverImageSelected={coverImageSelected}
+              setCoverImageSelected={setCoverImageSelected}
+              setShowConfirmUploadCoverImage={setShowConfirmUploadCoverImage}
+              setShowCoverImageOption={setShowCoverImageOption}
+              setLoadingUploadCoverImage={setLoadingUploadCoverImage}
+              setStatusData={setStatusData}
+            />
+          )}
+          {loadingUploadCoverImage && (
+            <div className={cx("cover-image-loading")}>
+              <BeatLoader
+                size={10}
+                color="#0866ff"
+                className={cx("loading-spinner")}
+              />
+            </div>
+          )}
+
+          {coverImage ? (
             <div className={cx("cover-image-preview")}>
               <Link to={photoUrl} className={cx("cover-image-link")}>
                 <img
-                  src={coverImagePreview}
+                  src={coverImage}
                   alt="cover-img"
                   className={cx("cover-img")}
                 />
               </Link>
-              <div className={cx("cover-image-option")}>
-                <div className={cx("create-with-avatar")}>
-                  <i
-                    className={cx("fa-sharp fa-solid fa-face-smile", "icon")}
-                  ></i>
-                  <span className={cx("text")}>Create with avatar</span>
+              {showCoverImageOption && (
+                <div className={cx("cover-image-option")}>
+                  <div className={cx("create-with-avatar")}>
+                    <i
+                      className={cx("fa-sharp fa-solid fa-face-smile", "icon")}
+                    ></i>
+                    <span className={cx("text")}>Create with avatar</span>
+                  </div>
+                  <div
+                    className={cx("add-cover-image")}
+                    onClick={handleClickCoverImage}
+                  >
+                    <i className={cx("fa-solid fa-camera", "icon")}></i>
+                    <span className={cx("text")}>Edit cover photo</span>
+                    <input
+                      ref={fileCoverImageRef}
+                      type="file"
+                      accept="image/*"
+                      className={cx("image-input")}
+                      style={{ display: "none" }}
+                      onChange={handlePreviewCoverImage}
+                    />
+                  </div>
                 </div>
-                <div
-                  className={cx("add-cover-image")}
-                  onClick={handleClickCoverImage}
-                >
-                  <i className={cx("fa-solid fa-camera", "icon")}></i>
-                  <span className={cx("text")}>Edit cover photo</span>
-                  <input
-                    ref={fileCoverImageRef}
-                    type="file"
-                    accept="image/*"
-                    className={cx("image-input")}
-                    style={{ display: "none" }}
-                    onChange={handlePreviewCoverImage}
-                  />
-                </div>
-              </div>
+              )}
             </div>
           ) : (
             <div className={cx("cover-image-default")}>
-              <div className={cx("cover-image-option")}>
-                <div className={cx("create-with-avatar")}>
-                  <i
-                    className={cx("fa-sharp fa-solid fa-face-smile", "icon")}
-                  ></i>
-                  <span className={cx("text")}>Create with avatar</span>
+              {showCoverImageOption && (
+                <div className={cx("cover-image-option")}>
+                  <div className={cx("create-with-avatar")}>
+                    <i
+                      className={cx("fa-sharp fa-solid fa-face-smile", "icon")}
+                    ></i>
+                    <span className={cx("text")}>Create with avatar</span>
+                  </div>
+                  <div
+                    className={cx("add-cover-image")}
+                    onClick={handleClickCoverImage}
+                  >
+                    <i className={cx("fa-solid fa-camera", "icon")}></i>
+                    <span className={cx("text")}>Add Cover Photo</span>
+                    <input
+                      ref={fileCoverImageRef}
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      className={cx("image-input")}
+                      style={{ display: "none" }}
+                      onChange={handlePreviewCoverImage}
+                    />
+                  </div>
                 </div>
-                <div
-                  className={cx("add-cover-image")}
-                  onClick={handleClickCoverImage}
-                >
-                  <i className={cx("fa-solid fa-camera", "icon")}></i>
-                  <span className={cx("text")}>Add Cover Photo</span>
-                  <input
-                    ref={fileCoverImageRef}
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    className={cx("image-input")}
-                    style={{ display: "none" }}
-                    onChange={handlePreviewCoverImage}
-                  />
-                </div>
-              </div>
+              )}
             </div>
           )}
         </div>
@@ -172,14 +242,16 @@ function UserProfileTop() {
               </div>
               {showAvatarOption && (
                 <UserAvatarOptions
-                  image={avatar ? avatar : UserDefault}
+                  image={userData.userAvatar}
                   setChooseProfilePicture={setChooseProfilePicture}
                 />
               )}
             </div>
             <div className={cx("user-information")}>
               <div className={cx("user-content")}>
-                <div className={cx("username")}>Đình Duy</div>
+                <div className={cx("username")}>
+                  {userData.surName + " " + userData.firstName}
+                </div>
                 <div className={cx("number-friends")}>311 friends</div>
               </div>
               <div className={cx("user-select")}>
@@ -188,7 +260,10 @@ function UserProfileTop() {
                   <span className={cx("text")}>Add to story</span>
                 </div>
 
-                <div className={cx("edit-profile")}>
+                <div
+                  className={cx("edit-profile")}
+                  onClick={() => onEditProfileClick()}
+                >
                   <i className={cx("fa-solid fa-pen", "icon")}></i>
                   <span className={cx("text")}>Edit profile</span>
                 </div>
@@ -229,7 +304,6 @@ function UserProfileTop() {
                 const isActive = location.pathname === selection.path;
                 return (
                   <NavLink
-                    to=""
                     className={cx(
                       isActive ? "select-option-active" : "select-option"
                     )}

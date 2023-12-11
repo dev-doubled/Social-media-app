@@ -18,11 +18,16 @@
     display: flex;
     align-items: center;
     z-index: 10;
-    .logo {
-      width: 42px;
-      height: 42px;
-      margin-right: 10px;
+
+    .header-logo {
+      cursor: pointer;
+      .logo {
+        width: 42px;
+        height: 42px;
+        margin-right: 10px;
+      }
     }
+
     .search-container {
       width: 240px;
       height: 40px;
@@ -133,6 +138,7 @@
         .user-avt {
           width: 100%;
           height: 100%;
+          object-fit: cover;
           border-radius: 50%;
         }
       }
@@ -152,6 +158,10 @@
         background-color: #e4e6eb;
       }
     }
+  }
+
+  .header-options-edit {
+    padding-right: 24px;
   }
 }
 
@@ -176,6 +186,7 @@
     background-color: #fff;
   }
   .nav-item {
+    cursor: pointer;
     width: calc((100% / 5));
     gap: 8px;
     height: 50px;
@@ -184,7 +195,7 @@
     justify-content: center;
     text-decoration: none;
     color: var(--text-color);
-    transition: linear 0.15s;
+    border-bottom: 3.2px solid transparent;
     .item-icon {
       font-size: 20px;
       font-weight: 500;
@@ -198,6 +209,7 @@
   }
 
   .nav-item-active {
+    cursor: pointer;
     width: calc((100% / 5));
     height: 56px;
     padding: 14.4px 0;
@@ -206,7 +218,6 @@
     justify-content: center;
     text-decoration: none;
     color: var(--text-color);
-    transition: linear 0.15s;
     border-bottom: 3.2px solid var(--primary);
     .item-icon {
       font-size: 22px;

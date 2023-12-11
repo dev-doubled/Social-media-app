@@ -2,7 +2,7 @@ import React from "react";
 import classNames from "classnames/bind";
 import styles from "./RightSideBar.module.scss";
 import PageImg from "~/assets/images/page.jpg";
-import UserAvt from "~/assets/images/user_3.jpg";
+import UserAvt from "~/assets/images/user_1.jpg";
 const cx = classNames.bind(styles);
 
 function RightSideBar() {
@@ -61,7 +61,7 @@ function RightSideBar() {
                       />
                       <div className={cx("activity")}></div>
                     </div>
-                    <div className={cx("username")}>Hoang Xiem</div>
+                    <div className={cx("username")}>Hannie</div>
                   </div>
                 </div>
               ))}
