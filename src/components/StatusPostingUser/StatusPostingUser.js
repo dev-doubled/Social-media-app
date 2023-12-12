@@ -1,25 +1,28 @@
-import React, { useRef, useState, useEffect } from "react";
-import classNames from "classnames/bind";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { formatDistanceToNow } from "date-fns";
+import classNames from "classnames/bind";
+
 import api from "~/services/apiService";
-import ImageStatus from "./ImageStatus";
+import UserAvatarDefault from "~/assets/images/user-default.png";
+import Comment from "~/components/Status/Comment";
+import Reactions from "~/components/Status/Reactions";
+import ShareOptions from "~/components/Status/ShareOptions";
+import StatusPopup from "../StatusPopup";
 import ImageAvatarStatus from "./ImageAvatarStatus";
 import ImageCoverStatus from "./ImageCoverStatus";
-import Reactions from "~/components/Status/Reactions";
+import ImageStatus from "./ImageStatus";
 import ReactionUI from "./ReactionUI";
-import Comment from "~/components/Status/Comment";
-import StatusPopup from "../StatusPopup";
-import UserAvatarDefault from "~/assets/images/user-default.png";
-import likeIcon from "~/assets/images/like.png";
 import hahaIcon from "~/assets/images/haha.png";
+import likeIcon from "~/assets/images/like.png";
 import loveIcon from "~/assets/images/love.png";
-import ShareOptions from "~/components/Status/ShareOptions";
+
 import styles from "./StatusPostingUser.module.scss";
 const cx = classNames.bind(styles);
 
 function Status({ userData, data, isOpenStatusPopup, setIsOpenStatusPopup }) {
   const textareaRef = useRef(null);
+
   const [userDataPosting, setUserDataPosting] = useState({});
   const [selectedReaction, setSelectedReaction] = useState(null);
   const [isSelectedReaction, setIsSelectedReaction] = useState(false);
@@ -29,7 +32,6 @@ function Status({ userData, data, isOpenStatusPopup, setIsOpenStatusPopup }) {
   const [countComment, setCountComment] = useState(0);
   const [commentContent, setCommentContent] = useState("");
   const [dataStatus, setDataStatus] = useState(null);
-
   const [textareaRows, setTextareaRows] = useState(1);
   const [mouseIsOver, setMouseIsOver] = useState(false);
   const [showReactions, setShowReactions] = useState(false);
@@ -184,7 +186,6 @@ function Status({ userData, data, isOpenStatusPopup, setIsOpenStatusPopup }) {
   const handleReactionClick = (reactionContent) => {
     setIsSelectedReaction(false);
     setSelectedReaction(reactionContent);
-    // setCountReaction((prev) => prev + 1);
     const reactionData = {
       userId: userData.userId,
       reaction: reactionContent,
@@ -211,7 +212,6 @@ function Status({ userData, data, isOpenStatusPopup, setIsOpenStatusPopup }) {
         });
     } else {
       setSelectedReaction("Like");
-      // setCountReaction((prev) => prev + 1);
       const reactionData = {
         userId: userData.userId,
         reaction: "Like",
@@ -267,27 +267,18 @@ function Status({ userData, data, isOpenStatusPopup, setIsOpenStatusPopup }) {
         console.log(error);
       });
   };
-  // const callApiToGetCommentLength = () => {
-  //   api
-  //     .get(`/post/get-all-reaction/${data._id}`)
-  //     .then((response) => {
-  //       const count = response.data.reactions.length;
-  //       setCountReaction(count);
-  //     })
-  //     .catch((error) => {
-  //       console.log(error);
-  //     });
-  // };
-  const getFormattedTimestamp = (createdAt) => {
-    const distance = formatDistanceToNow(new Date(createdAt), {
-      addSuffix: true,
-    });
+  const getFormattedTimestamp = useMemo((createdAt) => {
+    return (createdAt) => {
+      const distance = formatDistanceToNow(new Date(createdAt), {
+        addSuffix: true,
+      });
 
-    if (distance === "less than a minute ago") {
-      return "few seconds ago";
-    }
-    return distance;
-  };
+      if (distance === "less than a minute ago") {
+        return "a few seconds ago";
+      }
+      return distance;
+    };
+  }, []);
   const handleDataStatus = (dataStatus) => {
     setDataStatus(dataStatus);
     openStatusPopup();
@@ -296,21 +287,23 @@ function Status({ userData, data, isOpenStatusPopup, setIsOpenStatusPopup }) {
     <>
       {isOpenStatusPopup && dataStatus && (
         <StatusPopup
-          userData={userData}
-          userDataPosting={userDataPosting}
-          data={dataStatus}
-          closeStatusPopup={closeStatusPopup}
-          selectedReaction={selectedReaction}
-          setSelectedReaction={setSelectedReaction}
-          isSelectedReaction={isSelectedReaction}
-          setIsSelectedReaction={setIsSelectedReaction}
-          countReaction={countReaction}
-          setCountReaction={setCountReaction}
-          countReactionReload={countReactionReload}
-          countComment={countComment}
-          setCountComment={setCountComment}
-          listComments={listComments}
-          setListComments={setListComments}
+          {...{
+            userData,
+            userDataPosting,
+            data: dataStatus,
+            closeStatusPopup,
+            selectedReaction,
+            setSelectedReaction,
+            isSelectedReaction,
+            setIsSelectedReaction,
+            countReaction,
+            setCountReaction,
+            countReactionReload,
+            countComment,
+            setCountComment,
+            listComments,
+            setListComments,
+          }}
         />
       )}
       <div className={cx("status-main")} onClick={() => setShowShare(false)}>
@@ -335,12 +328,14 @@ function Status({ userData, data, isOpenStatusPopup, setIsOpenStatusPopup }) {
                 </Link>
                 {data.type === "avatarImage" && (
                   <span className={cx("sub-user-name")}>
-                    updated {userDataPosting.gender ? "his" : "her"} profile picture.
+                    updated {userDataPosting.gender ? "his" : "her"} profile
+                    picture.
                   </span>
                 )}
                 {data.type === "coverImage" && (
                   <span className={cx("sub-user-name")}>
-                    updated {userDataPosting.gender ? "his" : "her"} cover photo.
+                    updated {userDataPosting.gender ? "his" : "her"} cover
+                    photo.
                   </span>
                 )}
                 <div className={cx("status-information")}>

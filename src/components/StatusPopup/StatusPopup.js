@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import classNames from "classnames/bind";
 import { Link } from "react-router-dom";
 import { formatDistanceToNow } from "date-fns";
+import classNames from "classnames/bind";
+
 import api from "~/services/apiService";
 import ImageAvatarStatus from "./ImageAvatarStatus";
 import ImageCoverStatus from "./ImageCoverStatus";
@@ -14,9 +15,12 @@ import hahaIcon from "~/assets/images/haha.png";
 import loveIcon from "~/assets/images/love.png";
 import UserAvatarDefault from "~/assets/images/user-default.png";
 import ShareOptions from "../Status/ShareOptions";
+
 import styles from "./StatusPopup.module.scss";
 const cx = classNames.bind(styles);
+
 const validReactions = ["Like", "Love", "Care", "Haha", "Sad", "Wow", "Angry"];
+
 function StatusPopup({
   closeStatusPopup,
   userData,
@@ -117,7 +121,6 @@ function StatusPopup({
   const handleReactionClick = (reactionContent) => {
     setIsSelectedReaction(false);
     setSelectedReaction(reactionContent);
-    // setCountReaction((prev) => prev + 1);
     const reactionData = {
       userId: userData.userId,
       reaction: reactionContent,
@@ -144,7 +147,6 @@ function StatusPopup({
         });
     } else {
       setSelectedReaction("Like");
-      // setCountReaction((prev) => prev + 1);
       const reactionData = {
         userId: userData.userId,
         reaction: "Like",
